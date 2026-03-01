@@ -478,7 +478,10 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#cambiando-el-fondo" id="toc-cambiando-el-fondo" class="nav-link" data-scroll-target="#cambiando-el-fondo"><span class="header-section-number">3.8.1</span> Cambiando el fondo</a></li>
   <li><a href="#agregando-sonido" id="toc-agregando-sonido" class="nav-link" data-scroll-target="#agregando-sonido"><span class="header-section-number">3.8.2</span> Agregando sonido</a></li>
+  <li><a href="#atajos-de-teclado" id="toc-atajos-de-teclado" class="nav-link" data-scroll-target="#atajos-de-teclado"><span class="header-section-number">3.8.3</span> Atajos de teclado</a></li>
+  <li><a href="#soporte-para-control-o-mando" id="toc-soporte-para-control-o-mando" class="nav-link" data-scroll-target="#soporte-para-control-o-mando"><span class="header-section-number">3.8.4</span> Soporte para control o mando</a></li>
   </ul></li>
+  <li><a href="#exportando-el-juego-finalizado" id="toc-exportando-el-juego-finalizado" class="nav-link" data-scroll-target="#exportando-el-juego-finalizado"><span class="header-section-number">3.9</span> Exportando el juego finalizado</a></li>
   </ul>
 </nav>
     </div>
@@ -947,9 +950,25 @@ window.Quarto = {
 <p>Para detener la música y reproducir el sonido de muerte, nos vamos a <code>game_over()</code> y agregamos:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="va">$Music</span>.<span class="fu">stop</span>()</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="va">$DeathSound</span>.<span class="fu">play</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-
-
 </section>
+<section id="atajos-de-teclado" class="level3" data-number="3.8.3">
+<h3 data-number="3.8.3" class="anchored" data-anchor-id="atajos-de-teclado"><span class="header-section-number">3.8.3</span> Atajos de teclado</h3>
+<p>Ya que nuestro juego se controla con un teclado, sería bastante conveniente iniciarlo con una tecla. Podemos agregar esto con la propiedad <em>Shortcut</em> del nodo <code>StartButton</code>.</p>
+<p>Vamos a la configuración del proyecto y en la pestaña del Mapa de entradas agregaremos una acción que llamaremos <code>start_game</code> y le asignaremos la tecla <kbd title="Enter" aria-hidden="true">Enter</kbd><span class="visually-hidden">Enter</span>. En la escena <code>HUD</code> seleccionamos <code>StartButton</code> y localizamos su propiedad <em>Shortcut</em> en el inspector. Damos clic en donde pone <em>Vacío</em> y creamos un nuevo recurso <code>Shortcut</code>. Le damos clic una vez, al aparecer las palabras <em>Array[InputEvent]</em> volvemos a dar clic en donde pone <em>Añadir elemento</em>. Clic de nuevo y en <em>InputEventAction</em>. Aparecerá otro apartado, pues en donde se lee <em>Action</em> damos clic y seleccionamos <code>start_game</code>. Probemos y ya debería iniciar el juego, tanto por presionar <kbd title="Enter" aria-hidden="true">Enter</kbd><span class="visually-hidden">Enter</span> como por dar clic en el botón de inicio.</p>
+</section>
+<section id="soporte-para-control-o-mando" class="level3" data-number="3.8.4">
+<h3 data-number="3.8.4" class="anchored" data-anchor-id="soporte-para-control-o-mando"><span class="header-section-number">3.8.4</span> Soporte para control o mando</h3>
+<p>Es buen momento para agregar el soporte para control en nuestro pequeño juego. Conectamos o emparejamos uno y nos vamos al Mapa de entradas en la configuración del proyecto y en cada una de las acciones ya creadas le damos clic al botón <em>+</em> y presionamos los botones del mando que desamos asignar (las cuatro direcciones y el botón <em>start</em>, claro).</p>
+<p>Probemos, nuestro juego ya debería funcionar con el control.</p>
+</section>
+</section>
+<section id="exportando-el-juego-finalizado" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="exportando-el-juego-finalizado"><span class="header-section-number">3.9</span> Exportando el juego finalizado</h2>
+<p>Podemos compartir el juego simplemente comprimiendo la carpeta del proyecto y asegurarnos de que quien quiera probarlo tenga Godot instalado. Pero si eso no es lo que deseamos, debemos exportar el juego para crear un ejecutable o binario.</p>
+<p>Los binarios de nuestro juego se crean mediante el menú <em>Proyecto -&gt; Exportar</em>. Ahí veremos que de entrada estará vacío, ya que no tenemos ningún ajuste predefinido o <em>presets</em>. Para agregar uno, basta dar clic en el botón correspondiente y seleccionar la plataforma para la que queremos crear el binario. A modo de ejemplo, probemos el de <em>Windows Desktop</em> o el de <em>Linux</em>. A pesar de seleccionarlo, se nos dirá que aún falta una plantilla de exportación, lo cual impedirá generar el ejecutable. Damos clic en el enlace <em>Administrar plantillas de exportación</em> y después en <em>Descargar e instalar</em>. Esto descargará archivos que pueden llegar a ser bastante pesados (en el caso de escritorio, es de mas de 1 GB).</p>
+<p>Con las plantillas y presets descargados y listos, podemos ya exportar nuestro proyecto. En la <em>Ruta de exportación</em> deberíamos escoger una diferente a la de nuestro proyecto, ya que si tenemos control de versiones, no resulta buena idea publicar el binario en la misma carpeta, ya que este debería publicarse como <em>Releases</em> en Github, por ejemplo. Se sugiere quitar la <em>Envoltura de consola de exportación</em> de la pestaña <em>Opciones</em> y esscoger <em>Exportar escenas seleccionadas</em> (se seleccionan todas con sus dependencias, naturalmente) de la pestaña <em>Recursos</em>. Todo lo demás puede dejarse tal como está. El proceso de exportación debe ser breve y generar los ejecutables deseados en la ruta especificada. Probemos que funcionen y si es así, ¡listo! ya podemos publicar nuestro juego.</p>
+
+
 </section>
 
 </main> <!-- /main -->

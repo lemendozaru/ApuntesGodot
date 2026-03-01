@@ -566,6 +566,28 @@ $Music.stop()
 $DeathSound.play()
 ```
 
+### Atajos de teclado
+
+Ya que nuestro juego se controla con un teclado, sería bastante conveniente iniciarlo con una tecla. Podemos agregar esto con la propiedad *Shortcut* del nodo `StartButton`.
+
+Vamos a la configuración del proyecto y en la pestaña del Mapa de entradas agregaremos una acción que llamaremos `start_game` y le asignaremos la tecla {{< kbd Enter >}}. En la escena `HUD` seleccionamos `StartButton` y localizamos su propiedad *Shortcut* en el inspector. Damos clic en donde pone *Vacío* y creamos un nuevo recurso `Shortcut`. Le damos clic una vez, al aparecer las palabras *Array[InputEvent]* volvemos a dar clic en donde pone *Añadir elemento*. Clic de nuevo y en *InputEventAction*. Aparecerá otro apartado, pues en donde se lee *Action* damos clic y seleccionamos `start_game`. Probemos y ya debería iniciar el juego, tanto por presionar {{< kbd Enter >}} como por dar clic en el botón de inicio.
+
+### Soporte para control o mando
+
+Es buen momento para agregar el soporte para control en nuestro pequeño juego. Conectamos o emparejamos uno y nos vamos al Mapa de entradas en la configuración del proyecto y en cada una de las acciones ya creadas le damos clic al botón *+* y presionamos los botones del mando que desamos asignar (las cuatro direcciones y el botón *start*, claro).
+
+Probemos, nuestro juego ya debería funcionar con el control.
+
+## Exportando el juego finalizado
+
+Podemos compartir el juego simplemente comprimiendo la carpeta del proyecto y asegurarnos de que quien quiera probarlo tenga Godot instalado. Pero si eso no es lo que deseamos, debemos exportar el juego para crear un ejecutable o binario.
+
+Los binarios de nuestro juego se crean mediante el menú *Proyecto -> Exportar*. Ahí veremos que de entrada estará vacío, ya que no tenemos ningún ajuste predefinido o *presets*. Para agregar uno, basta dar clic en el botón correspondiente y seleccionar la plataforma para la que queremos crear el binario. A modo de ejemplo, probemos el de *Windows Desktop* o el de *Linux*. A pesar de seleccionarlo, se nos dirá que aún falta una plantilla de exportación, lo cual impedirá generar el ejecutable. Damos clic en el enlace *Administrar plantillas de exportación* y después en *Descargar e instalar*. Esto descargará archivos que pueden llegar a ser bastante pesados (en el caso de escritorio, es de mas de 1 GB).
+
+Con las plantillas y presets descargados y listos, podemos ya exportar nuestro proyecto. En la *Ruta de exportación* deberíamos escoger una diferente a la de nuestro proyecto, ya que si tenemos control de versiones, no resulta buena idea publicar el binario en la misma carpeta, ya que este debería publicarse como *Releases* en Github, por ejemplo. Se sugiere quitar la *Envoltura de consola de exportación* de la pestaña *Opciones* y esscoger *Exportar escenas seleccionadas* (se seleccionan todas con sus dependencias, naturalmente) de la pestaña *Recursos*. Todo lo demás puede dejarse tal como está. El proceso de exportación debe ser breve y generar los ejecutables deseados en la ruta especificada. Probemos que funcionen y si es así, ¡listo! ya podemos publicar nuestro juego.
+
+
+
 
 
 
