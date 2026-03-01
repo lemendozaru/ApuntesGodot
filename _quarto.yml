@@ -4,7 +4,6 @@ project:
 book:
   title: "Desarrollo de Videojuegos"
   author: "Luis E. Mendoza"
-  date: "02/22/2026"
   chapters:
     - index.qmd
     - intro.qmd
