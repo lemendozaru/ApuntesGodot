@@ -68,7 +68,7 @@
     "href": "primer2D.html",
     "title": "3  Primer juego en 2D",
     "section": "",
-    "text": "3.1 Mecánicas del juego\nCrearemos nuestro primer mini-juego en dos dimensiones. Aunque sea simple, será un juego completo. Bajo la marcha, abordaremos el funcionamiento del motor, la estructura de un proyecto típico de Godot y la construcción de un juego en 2D.\nCabe enfatizar que esta parte del curso no tendrá capturas de pantalla, ya que se desea lograr una familiaridad con el motor Godot mediante la práctica, no únicamente leyendo manuales.\nEl personake deberá moverse y esquivar enemigos que aparecen de manera aleatoria durante el mayor tiempo posible, el cual deberá mostrarse en la parte superior de la pantalla.\nLos assets se proveen en la plataforma del curso.",
+    "text": "3.1 Mecánicas del juego\nCrearemos nuestro primer mini-juego en dos dimensiones. Aunque sea simple, será un juego completo. Bajo la marcha, abordaremos el funcionamiento del motor, la estructura de un proyecto típico de Godot y la construcción de un juego en 2D.\nCabe enfatizar que esta parte del curso no tendrá capturas de pantalla, ya que se desea lograr una familiaridad con el motor Godot mediante la práctica, no únicamente leyendo manuales.\nEl personaje deberá moverse y esquivar enemigos que aparecen de manera aleatoria durante el mayor tiempo posible, el cual deberá mostrarse en la parte superior de la pantalla.\nLos assets se proveen en la plataforma del curso.",
     "crumbs": [
       "Introducción",
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Primer juego en 2D</span>"
