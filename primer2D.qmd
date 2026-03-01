@@ -416,7 +416,7 @@ Ahora es turno de definir nuestra escena principal. Esto se consigue dando clic 
 
 Basta con dar clic en el botón de *Reproducir proyecto* (el típico icono de *Play* que se encuentra arriba del inspector) o presionando {{<kbd F5>}} y ver la ventana de nuestro juego. Si ya estamos conformes con el funcionamiento, cambiamos la línea `new_game()` por `pass` en la función `_ready()` para continuar con la interfaz de usuario.
 
-## interfaz de usuario
+## Interfaz de usuario
 
 Démosle a nuestro juego los toques finales: agreguemos el puntaje en pantalla, un botón de inicio/reinicio y un mensaje de *Game Over*.
 
