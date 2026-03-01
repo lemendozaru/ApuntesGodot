@@ -1,5 +1,5 @@
-# Preface {.unnumbered}
+# Prefacio {.unnumbered}
 
-This is a Quarto book.
+Este es un libro sobre Godot y el desarrollo de videojuegos.
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+Para aprender más sobre Godot, [godotengine.org](https://godotengine.org/es/).
