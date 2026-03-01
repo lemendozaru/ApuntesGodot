@@ -578,7 +578,7 @@ Es buen momento para agregar el soporte para control en nuestro pequeño juego. 
 
 Probemos, nuestro juego ya debería funcionar con el control.
 
-## Exportando el juego finalizado
+# Exportando el juego finalizado
 
 Podemos compartir el juego simplemente comprimiendo la carpeta del proyecto y asegurarnos de que quien quiera probarlo tenga Godot instalado. Pero si eso no es lo que deseamos, debemos exportar el juego para crear un ejecutable o binario.
 
