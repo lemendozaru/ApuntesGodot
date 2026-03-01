@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3&nbsp; Primer juego en 2D – Desarrollo de Videojuegos</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./primer3D.html" rel="next">
+<link href="./conceptosclave.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-8a5c5494549ee22ce5ac99faca083a9b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-82698d6252e92dd5db1169a928d6c1e6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-8a5c5494549ee22ce5ac99faca083a9b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/kbd/kbd.js"></script>
+<link href="site_libs/quarto-contrib/kbd/kbd.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./conceptosclave.html">Introducción</a></li><li class="breadcrumb-item"><a href="./primer2D.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Primer juego en 2D</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Desarrollo de Videojuegos</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Prefacio</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Introducción</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./conceptosclave.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conceptos Clave</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./primer2D.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Primer juego en 2D</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./primer3D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">primer3D.html</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Plataformas</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">2D.html</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./3D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">3D.html</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./summary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Summary</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contenido</h2>
+   
+  <ul>
+  <li><a href="#mecánicas-del-juego" id="toc-mecánicas-del-juego" class="nav-link active" data-scroll-target="#mecánicas-del-juego"><span class="header-section-number">3.1</span> Mecánicas del juego</a></li>
+  <li><a href="#configurando-el-proyecto" id="toc-configurando-el-proyecto" class="nav-link" data-scroll-target="#configurando-el-proyecto"><span class="header-section-number">3.2</span> Configurando el proyecto</a>
+  <ul class="collapse">
+  <li><a href="#un-vistazo-al-viewport" id="toc-un-vistazo-al-viewport" class="nav-link" data-scroll-target="#un-vistazo-al-viewport"><span class="header-section-number">3.2.1</span> Un vistazo al <em>viewport</em></a></li>
+  <li><a href="#importando-los-assets" id="toc-importando-los-assets" class="nav-link" data-scroll-target="#importando-los-assets"><span class="header-section-number">3.2.2</span> Importando los assets</a></li>
+  <li><a href="#configurando-la-vista-del-juego" id="toc-configurando-la-vista-del-juego" class="nav-link" data-scroll-target="#configurando-la-vista-del-juego"><span class="header-section-number">3.2.3</span> Configurando la vista del juego</a></li>
+  <li><a href="#organizando-el-proyecto" id="toc-organizando-el-proyecto" class="nav-link" data-scroll-target="#organizando-el-proyecto"><span class="header-section-number">3.2.4</span> Organizando el proyecto</a></li>
+  </ul></li>
+  <li><a href="#creando-al-jugador" id="toc-creando-al-jugador" class="nav-link" data-scroll-target="#creando-al-jugador"><span class="header-section-number">3.3</span> Creando al jugador</a>
+  <ul class="collapse">
+  <li><a href="#estructura-de-nodos" id="toc-estructura-de-nodos" class="nav-link" data-scroll-target="#estructura-de-nodos"><span class="header-section-number">3.3.1</span> Estructura de nodos</a></li>
+  <li><a href="#animación-del-sprite" id="toc-animación-del-sprite" class="nav-link" data-scroll-target="#animación-del-sprite"><span class="header-section-number">3.3.2</span> Animación del <em>sprite</em></a></li>
+  </ul></li>
+  <li><a href="#programando-al-jugador" id="toc-programando-al-jugador" class="nav-link" data-scroll-target="#programando-al-jugador"><span class="header-section-number">3.4</span> Programando al jugador</a>
+  <ul class="collapse">
+  <li><a href="#creando-el-script" id="toc-creando-el-script" class="nav-link" data-scroll-target="#creando-el-script"><span class="header-section-number">3.4.1</span> Creando el script</a></li>
+  <li><a href="#variables" id="toc-variables" class="nav-link" data-scroll-target="#variables"><span class="header-section-number">3.4.2</span> Variables</a></li>
+  <li><a href="#función-_ready" id="toc-función-_ready" class="nav-link" data-scroll-target="#función-_ready"><span class="header-section-number">3.4.3</span> Función <code>_ready()</code></a></li>
+  <li><a href="#función-_process" id="toc-función-_process" class="nav-link" data-scroll-target="#función-_process"><span class="header-section-number">3.4.4</span> Función <code>_process()</code></a></li>
+  <li><a href="#mostrar-la-animación-adecuada" id="toc-mostrar-la-animación-adecuada" class="nav-link" data-scroll-target="#mostrar-la-animación-adecuada"><span class="header-section-number">3.4.5</span> Mostrar la animación adecuada</a></li>
+  <li><a href="#preparando-las-colisiones" id="toc-preparando-las-colisiones" class="nav-link" data-scroll-target="#preparando-las-colisiones"><span class="header-section-number">3.4.6</span> Preparando las colisiones</a></li>
+  <li><a href="#código-del-jugador" id="toc-código-del-jugador" class="nav-link" data-scroll-target="#código-del-jugador"><span class="header-section-number">3.4.7</span> Código del jugador</a></li>
+  </ul></li>
+  <li><a href="#creando-al-enemigo" id="toc-creando-al-enemigo" class="nav-link" data-scroll-target="#creando-al-enemigo"><span class="header-section-number">3.5</span> Creando al enemigo</a>
+  <ul class="collapse">
+  <li><a href="#configurando-al-enemigo" id="toc-configurando-al-enemigo" class="nav-link" data-scroll-target="#configurando-al-enemigo"><span class="header-section-number">3.5.1</span> Configurando al enemigo</a></li>
+  <li><a href="#animando-al-enemigo" id="toc-animando-al-enemigo" class="nav-link" data-scroll-target="#animando-al-enemigo"><span class="header-section-number">3.5.2</span> Animando al enemigo</a></li>
+  <li><a href="#programando-al-enemigo" id="toc-programando-al-enemigo" class="nav-link" data-scroll-target="#programando-al-enemigo"><span class="header-section-number">3.5.3</span> Programando al enemigo</a></li>
+  <li><a href="#código-del-enemigo" id="toc-código-del-enemigo" class="nav-link" data-scroll-target="#código-del-enemigo"><span class="header-section-number">3.5.4</span> Código del enemigo</a></li>
+  </ul></li>
+  <li><a href="#escena-principal" id="toc-escena-principal" class="nav-link" data-scroll-target="#escena-principal"><span class="header-section-number">3.6</span> Escena principal</a>
+  <ul class="collapse">
+  <li><a href="#configurando-la-escena" id="toc-configurando-la-escena" class="nav-link" data-scroll-target="#configurando-la-escena"><span class="header-section-number">3.6.1</span> Configurando la escena</a></li>
+  <li><a href="#agregando-los-enemigos" id="toc-agregando-los-enemigos" class="nav-link" data-scroll-target="#agregando-los-enemigos"><span class="header-section-number">3.6.2</span> Agregando los enemigos</a></li>
+  <li><a href="#programando-la-escena-principal" id="toc-programando-la-escena-principal" class="nav-link" data-scroll-target="#programando-la-escena-principal"><span class="header-section-number">3.6.3</span> Programando la escena principal</a></li>
+  <li><a href="#probando-la-escena" id="toc-probando-la-escena" class="nav-link" data-scroll-target="#probando-la-escena"><span class="header-section-number">3.6.4</span> Probando la escena</a></li>
+  </ul></li>
+  <li><a href="#interfaz-de-usuario" id="toc-interfaz-de-usuario" class="nav-link" data-scroll-target="#interfaz-de-usuario"><span class="header-section-number">3.7</span> interfaz de usuario</a>
+  <ul class="collapse">
+  <li><a href="#configurando-el-hud" id="toc-configurando-el-hud" class="nav-link" data-scroll-target="#configurando-el-hud"><span class="header-section-number">3.7.1</span> Configurando el HUD</a></li>
+  <li><a href="#posicionando-los-elementos-del-hud" id="toc-posicionando-los-elementos-del-hud" class="nav-link" data-scroll-target="#posicionando-los-elementos-del-hud"><span class="header-section-number">3.7.2</span> Posicionando los elementos del HUD</a></li>
+  <li><a href="#programando-el-hud" id="toc-programando-el-hud" class="nav-link" data-scroll-target="#programando-el-hud"><span class="header-section-number">3.7.3</span> Programando el HUD</a></li>
+  <li><a href="#conectando-el-hud-a-la-escena-principal" id="toc-conectando-el-hud-a-la-escena-principal" class="nav-link" data-scroll-target="#conectando-el-hud-a-la-escena-principal"><span class="header-section-number">3.7.4</span> Conectando el HUD a la escena principal</a></li>
+  <li><a href="#removiendo-los-enemigos" id="toc-removiendo-los-enemigos" class="nav-link" data-scroll-target="#removiendo-los-enemigos"><span class="header-section-number">3.7.5</span> Removiendo los enemigos</a></li>
+  </ul></li>
+  <li><a href="#toques-finales" id="toc-toques-finales" class="nav-link" data-scroll-target="#toques-finales"><span class="header-section-number">3.8</span> Toques finales</a>
+  <ul class="collapse">
+  <li><a href="#cambiando-el-fondo" id="toc-cambiando-el-fondo" class="nav-link" data-scroll-target="#cambiando-el-fondo"><span class="header-section-number">3.8.1</span> Cambiando el fondo</a></li>
+  <li><a href="#agregando-sonido" id="toc-agregando-sonido" class="nav-link" data-scroll-target="#agregando-sonido"><span class="header-section-number">3.8.2</span> Agregando sonido</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./conceptosclave.html">Introducción</a></li><li class="breadcrumb-item"><a href="./primer2D.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Primer juego en 2D</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Primer juego en 2D</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Crearemos nuestro primer mini-juego en dos dimensiones. Aunque sea simple, será un juego completo. Bajo la marcha, abordaremos el funcionamiento del motor, la estructura de un proyecto típico de Godot y la construcción de un juego en 2D.</p>
+<p>Cabe enfatizar que esta parte del curso no tendrá capturas de pantalla, ya que se desea lograr una familiaridad con el motor Godot mediante la práctica, no únicamente leyendo manuales.</p>
+<section id="mecánicas-del-juego" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="mecánicas-del-juego"><span class="header-section-number">3.1</span> Mecánicas del juego</h2>
+<p>El personake deberá moverse y esquivar enemigos que aparecen de manera aleatoria durante el mayor tiempo posible, el cual deberá mostrarse en la parte superior de la pantalla.</p>
+<p>Los <em>assets</em> se proveen en la plataforma del curso.</p>
+</section>
+<section id="configurando-el-proyecto" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="configurando-el-proyecto"><span class="header-section-number">3.2</span> Configurando el proyecto</h2>
+<p>Iniciamos Godot y creamos un nuevo proyecto. Para ello debemos darle al motor una ruta en la que se almacenará nuestro juego, dando clic al botón de <em>Examinar</em> y eligiéndola mediante el navegador de archivos de nuestro sistema operativo, damos clic en <em>Elegir carpeta actual</em>. Después, podemos darle nombre al proyecto escribiéndolo en la caja de texto que se encuentra al principio de la ventana.</p>
+<p>Para este nuestro primer juego en 2D, le daremos el nombre de <em>Primer2D</em> y dejamos todas las demás opciones tal como están.</p>
+<section id="un-vistazo-al-viewport" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="un-vistazo-al-viewport"><span class="header-section-number">3.2.1</span> Un vistazo al <em>viewport</em></h3>
+<p>Entraremos a la ventana principal de Godot, en la cual sobresale el <em>Viewport</em> en el centro y los distintos paneles a sus lados. Veamos primero el <em>Viewport</em>. Este muestra la vista previa de nuestro juego, aunque ahora se encuentra en la Vista 3D. La cambiaremos a la vista 2D mediante los botones que se encuentran justo encima. Ahí podremos notar varias líneas: una roja, una verde y un recuadro azul. La primera línea es el eje <span class="math inline">\(x\)</span> de nuestro mundo 2D, mientras que la línea roja es el eje <span class="math inline">\(y\)</span>. Por otro lado, el recuadro azul representa la ventana de nuestro juego, o dicho de otra manera, es la cámara de nuestro mundo 2D.</p>
+</section>
+<section id="importando-los-assets" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="importando-los-assets"><span class="header-section-number">3.2.2</span> Importando los assets</h3>
+<p>Ahora nos enfocaremos en el <em>Sistema de Archivos</em>, llevando el cursor ahí y dando clic derecho crearemos una carpeta llamada <code>assets</code>. Enseguida abrimos el navegador de archivos del sistema operativo y arrastramos las carpetas <code>art</code> y <code>fonts</code> dentro de <code>assets</code>. También podemos realizarlo copiando y pegando dichos elementos mediante el navegador del sistema.</p>
+</section>
+<section id="configurando-la-vista-del-juego" class="level3" data-number="3.2.3">
+<h3 data-number="3.2.3" class="anchored" data-anchor-id="configurando-la-vista-del-juego"><span class="header-section-number">3.2.3</span> Configurando la vista del juego</h3>
+<p>Este juego tendrá una vista vertical, preparándolo por si deseamos correrlo en un dispositivo móvil. Por ello, debemos configurar el tamaño de la ventana. Daremos clic en el menú <em>Proyecto -&gt; Configuración del proyecto</em> para abrir la ventana de configuración del proyecto en sí. En la pestaña <em>General</em> buscaremos en la columna izquierda el apartado <em>Visualización -&gt; Ventana</em>. Allí, en el conjunto <em>Tamaño</em>, modificaremos las opciones <em>Ancho del Viewport</em> y <em>Alto del Viewport</em> para dejarlos en <code>480</code> y <code>720</code>, respectivamente. Ahí mismo, pero en el conjunto <em>Estirar</em>, modificaremos la opción <em>Modo</em> para dejarla como <code>canvas_items</code> y debemos estar seguros que la opción <em>Aspecto</em> quede como <code>keep</code>.</p>
+<p>Podremos verificar que el recuadro azul de la vista 2D se ha actualizado a una configuración vertical.</p>
+</section>
+<section id="organizando-el-proyecto" class="level3" data-number="3.2.4">
+<h3 data-number="3.2.4" class="anchored" data-anchor-id="organizando-el-proyecto"><span class="header-section-number">3.2.4</span> Organizando el proyecto</h3>
+<p>Crearemos unas cuantas carpetas para organizar los diferentes elementos del proyecto. La idea es tener una carpeta por cada tipo de archivo o elemento que necesitemos, por lo que a una le nombraremos <code>scenes</code> y otra será <code>scripts</code>. Así, toda escena la guardaremos en su respectiva carpeta y cuando debamos crear un archivo de código lo pondremos en su propio apartado.</p>
+</section>
+</section>
+<section id="creando-al-jugador" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="creando-al-jugador"><span class="header-section-number">3.3</span> Creando al jugador</h2>
+<section id="estructura-de-nodos" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="estructura-de-nodos"><span class="header-section-number">3.3.1</span> Estructura de nodos</h3>
+<p>Comenzaremos yendo al panel <em>Escena</em> y en su apartado <em>Crear Nodo Raíz</em> damos clic en <em>Otro Nodo</em>. Veremos que aparece una ventana con la lista de nodos disponibles. En la caja de texto superior podemos escribir el nombre del nodo deseado, que en este caso es <code>Area2D</code>. Lo seleccionamos y damos clic en <em>Crear</em>. Notaremos que Godot nos pone una advertencia sobre la ausencia de forma definida en el nodo. Esto es debido a que este nodo se utiliza para detectar colisiones, por ejemplo, y necesita saber su forma y tamaño. No nos preocuparemos por eso ahora, ya que primero debemos definir gráficamente cómo representaremos al jugador.</p>
+<p>Demos doble clic al nodo recién creado y cambiemos su nombre a <code>Player</code>, con mayúscula inicial. Esto es una convención para diferenciar y nombrar nodos en Godot (PascalCase), ya que las variables y funciones utilizan otra (snake_case) y las constantes la suya propia también (MAYÚSCULAS).</p>
+<p>Con el nodo <code>Player</code> aún seleccionado buscaremos el botón <em>Agrupar nodos seleccionados</em> que se encuentra justo arriba del <em>Viewport</em> y daremos clic, esto es para asegurarnos de seleccionar siempre al nodo principal aunque seleccionemos sus copias o hijos.</p>
+<p>Enseguida nos vamos al menú <em>Escena -&gt; Guardar Escena</em> o usamos el atajo de teclado <kbd title="Ctrl-S" aria-hidden="true">Ctrl-S</kbd><span class="visually-hidden">Ctrl-S</span> y en la carpeta <code>scenes</code> guardaremos la escena como <code>player.tscn</code>. En todo momento podemos verificar la estructura del proyecto mediante el <em>Sistema de Archivos</em>.</p>
+</section>
+<section id="animación-del-sprite" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="animación-del-sprite"><span class="header-section-number">3.3.2</span> Animación del <em>sprite</em></h3>
+<p>Con el nodo <code>Player</code> seleccionado daremos clic en el signo <em>+</em> o con el atajo <kbd title="Ctrl-A" aria-hidden="true">Ctrl-A</kbd><span class="visually-hidden">Ctrl-A</span> y agregaremos un nodo <code>AnimatedSprite2D</code>, el cual gestionará tanto la apariencia como las animaciones de nuestro personaje. Sin embargo, seguirá apareciendo una advertencia, ya que este nodo requiere precisamente los recursos gráficos que gestionará. Esos recursos deberán ir definidos en un apartado llamado <code>Sprite Frames</code>, el cual es la lista de animaciones incluidas.</p>
+<p>Con el nodo <code>AnimatedSprite2D</code> seleccionado, nos dirigimos al panel <em>Inspector</em> (se encuentra a la derecha de nuestra pantalla) y encontremos la propiedad <code>Sprite Frames</code> y demos clic en <em>[vacío] -&gt; Nuevo -&gt; SpriteFrames</em>. Damos clic en el <code>SpriteFrames</code> que se acaba de crear para abrir el panel <em>Fotogramas de Animación</em> en la parte inferior de la pantalla.</p>
+<p>A la izquierda hay una lista de animaciones (aunque solo haya una predeterminada). Seleccionamos la única animación presente y la renombramos como <em>caminar</em>. Ahora agregamos otra animación dando clic en el botón <em>Añadir animación</em> o con <kbd title="Ctrl-N" aria-hidden="true">Ctrl-N</kbd><span class="visually-hidden">Ctrl-N</span> y la nombramos <em>arriba</em>.</p>
+<p>Con la animación <em>caminar</em> seleccionada, arrastramos los archivos <code>playerCaminar1.png</code> y <code>playerCaminar2.png</code> que se encuentran en la carpeta <code>assets/art</code> al área principal del panel de animaciones. Ahora repetimos para la animación <em>arriba</em> pero con los archivos <code>playerArriba1.png</code> y <code>playerArriba2.png</code>.</p>
+<p>Echando un vistazo al <em>viewport</em> podemos notar que el personaje es muy grande, por lo que lo escalaremos. Con el nodo <code>AnimatedSprite2D</code> seleccionado aún, nos dirigimos al panel <em>Inspector</em> y localizamos la sección <em>Node2D</em>, su apartado <em>Transform</em> y su opción <em>Scale</em> para dejarla en <code>0.5</code> tanto en <span class="math inline">\(x\)</span> como en <span class="math inline">\(y\)</span>.</p>
+<p>Para finalizar agregaremos un nodo <code>CollisionShape2D</code> como hijo de <code>Player</code>. Después, en el inspector buscamos la sección <em>CollisionShape2D</em> y damos clic en <em>Shape -&gt; [vacío] -&gt; Nuevo -&gt; CapsuleShape2D</em> y usando los manejadores de tamaño lo modificaremos hasta que logre cubrir el <em>sprite</em>. Esto se corresponde con la caja de colisión del personaje (lo que se conoce como <em>hitbox</em> en inglés). Ya no debería haber advertencias en el panel de <em>Escenas</em>.</p>
+</section>
+</section>
+<section id="programando-al-jugador" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="programando-al-jugador"><span class="header-section-number">3.4</span> Programando al jugador</h2>
+<section id="creando-el-script" class="level3" data-number="3.4.1">
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="creando-el-script"><span class="header-section-number">3.4.1</span> Creando el script</h3>
+<p>Con el nodo <code>Player</code> seleccionado damos clic en el botón <em>Añadir script</em> que se encuentra en el mismo panel de <em>Escenas</em>. Al aparecer el cuadro de diálogo solo debemos asegurarnos de modificar la ruta de guardado para que se almacene en la carpeta <code>scripts</code> y damos clic en <em>Crear</em>.</p>
+</section>
+<section id="variables" class="level3" data-number="3.4.2">
+<h3 data-number="3.4.2" class="anchored" data-anchor-id="variables"><span class="header-section-number">3.4.2</span> Variables</h3>
+<p>Godot nos mandará en automático a su editor de código con una plantilla que ya contiene algunos elementos. Nos colocaremos justo debajo de la primera línea y declararemos las primeras variables: <code>speed</code> (para la velocidad del personaje en píxeles/segundo) y <code>screen_size</code> (para el tamaño de la pantalla del juego).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">extends</span> Area2D</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>@export <span class="kw">var</span> speed <span class="op">=</span> <span class="dv">400</span> <span class="co"># velocidad del jugador en pix/s</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> screen_size <span class="co"># tamaño de la ventana del juego</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Notemos las palabra reservada <code>@export</code>, la cual permite llevar la variable al inspector, lo que permite modificar el valor de esta variable desde el mismo, sin tener que editar el script cada vez.</p>
+</section>
+<section id="función-_ready" class="level3" data-number="3.4.3">
+<h3 data-number="3.4.3" class="anchored" data-anchor-id="función-_ready"><span class="header-section-number">3.4.3</span> Función <code>_ready()</code></h3>
+<p>Continuemos con nuestro script. Tenemos una función llamada <code>_ready()</code>, la cual es llamada cuando entra a escena un nodo. Es buen momento para revisar el tamaño de la ventana del juego.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="bu">_ready</span>():</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    screen_size <span class="op">=</span> <span class="fu">get_viewport_rect</span>().size</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="función-_process" class="level3" data-number="3.4.4">
+<h3 data-number="3.4.4" class="anchored" data-anchor-id="función-_process"><span class="header-section-number">3.4.4</span> Función <code>_process()</code></h3>
+<p>Ahora vayamos a la siguiente función presente en nuestra plantilla: <code>_process()</code>. Esta función se llama en cada frame, por lo que resulta adecuada para estar revisando cambios frecuentes en el juego. Por ejemplo, para el jugador necesitamos estar verificando continuamente las entradas de control, la dirección del movimiento y la animación adecuada a la acción ejecutada.</p>
+<section id="mapa-de-entradas" class="level4" data-number="3.4.4.1">
+<h4 data-number="3.4.4.1" class="anchored" data-anchor-id="mapa-de-entradas"><span class="header-section-number">3.4.4.1</span> Mapa de entradas</h4>
+<p>Se refiere al mapeado de controles o cuáles teclas/botones se espera que el jugador presione para realizar las distintas acciones posibles en nuestro juego. Al ser un juego en 2D, podemos esperar tener cuatro entradas direccionales y que estén asignadas a las teclas direccionales de un teclado convencional.</p>
+<p>Para definir el mapeado, debemos ir al menú <em>Proyecto -&gt; Configuración del proyecto</em> y luego a lapestaña <em>Mapa de entrada</em>. Veremos la barra de entrada que dice <em>Añadir nueva acción</em> y allí escribimos <em>izquierda</em> para luego dar clic en el botón <em>Añadir</em>. Veremos que aparece la acción <code>izquierda</code> que creamos, dentro del listado <em>Acción</em>. En el lado derecho veremos un botón <em>+</em>, el cual abrirá una ventana pequeña en modo espera: está esperando a que presionemos la entrada que asignaremos a la acción. Basta con presionar la tecla direccional izquierda de nuestro teclado. Debe aparecer el icono de una tecla acompañado por su nombre en inglés y la palabra (Físico). Damos clic en <em>Aceptar</em>.</p>
+<p>Repetimos para las cuatro direcciones. Damos clic en <em>Cerrar</em>.</p>
+<p>Es momento de probar las entradas mediante la función <code>Input.is_action_pressed()</code>.</p>
+</section>
+<section id="dirección-del-movimiento" class="level4" data-number="3.4.4.2">
+<h4 data-number="3.4.4.2" class="anchored" data-anchor-id="dirección-del-movimiento"><span class="header-section-number">3.4.4.2</span> Dirección del movimiento</h4>
+<p>Escribimos lo siguiente en la función:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="bu">_process</span>(delta: float):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> velocity <span class="op">=</span> Vector2.ZERO <span class="co"># vector de movimiento del jugador</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"derecha"</span>):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        velocity.x <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"izquierda"</span>):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        velocity.x <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"abajo"</span>):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        velocity.y <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"arriba"</span>):</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        velocity.y <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> velocity.<span class="fu">length</span>() <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        velocity <span class="op">=</span> velocity.<span class="fu">normalized</span>() <span class="op">*</span> speed</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.<span class="fu">play</span>()</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.<span class="fu">stop</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Definimos el vector de movimiento del jugador como nulo o cero ya que no debería poder moverse justo al inicio. Luego, sumamos o restamos a los diferentes ejes, dependiendo de la entrada detectada. Tomemos en cuenta que sumar y restar en <span class="math inline">\(x\)</span> significa moverse a la derecha y a la izquierda, respectivamente; mientras que sumar y restar en <span class="math inline">\(y\)</span> implica bajar y subir, respectivamente.</p>
+<p>Otro punto a considerar es que <code>velocity</code> debe normalizarse (concepto de cálculo vectorial), es decir, hacer que su valor máximo sea 1, ya que de lo contrario, presionar dos teclas hará que su velocidad se duplique, volviendo más rápido el movimiento en diagonal. En las últimas líneas agregamos esa normalización y además ponemos las condiciones para mostrar la animación correspondiente.</p>
+<p>Por último, debemos definir la posición del jugador con base en su velocidad y evitar que salga de la pantalla. Esto se consigue agregando estas líneas al final de la función <code>_process()</code> pero fuera del <code>else</code></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>position <span class="op">+=</span> velocity <span class="op">*</span> delta</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>position <span class="op">=</span> position.<span class="bu">clamp</span>(Vector2.ZERO, screen_size) <span class="co"># clamp evita salir de pantalla</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Nota
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>El parámetro <em>delta</em> en la función <code>_process()</code> se refiere al tiempo que le tomó al cuadro de animación o <em>frame</em> anterior para completarse. Usando este valor aseguramos que el movimiento sera consistente incluso si la tasa de cuadros por segundo <em>frame-rate</em> cambia.</p>
+</div>
+</div>
+<p>Guardamos la escena y presionamos el botón <em>Ejecutar Escena Actual</em> (también podemos presionar <kbd title="F6" aria-hidden="true">F6</kbd><span class="visually-hidden">F6</span> o <kbd title="Fn-F6" aria-hidden="true">Fn-F6</kbd><span class="visually-hidden">Fn-F6</span> en ciertas laptops) para visualizar nuestra escena actual. El personaje debería poder moverse de acuerdo a la tecla que estemos presionando y no salir de la pantalla.</p>
+</section>
+</section>
+<section id="mostrar-la-animación-adecuada" class="level3" data-number="3.4.5">
+<h3 data-number="3.4.5" class="anchored" data-anchor-id="mostrar-la-animación-adecuada"><span class="header-section-number">3.4.5</span> Mostrar la animación adecuada</h3>
+<p>Tenemos solo dos animaciones: <em>caminar</em> y <em>arriba</em>. Esto no es malo en sí, ya que podemos decirle a Godot que refleje las animaciones disponibles y así tendremos todo cubierto. Esto se consigue con las funciones <code>flip_h</code> y <code>flip_v</code> para reflejar horizontal y verticalmente. Agregamos al final de la función <code>_process()</code> lo siguiente</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> velocity.x <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.animation <span class="op">=</span> <span class="st">"caminar"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.flip_v <span class="op">=</span> <span class="va">false</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.flip_h <span class="op">=</span> velocity.x <span class="op">&lt;</span> <span class="dv">0</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">elif</span> velocity.y <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.animation <span class="op">=</span> <span class="st">"arriba"</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.flip_v <span class="op">=</span> velocity.y <span class="op">&gt;</span> <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="preparando-las-colisiones" class="level3" data-number="3.4.6">
+<h3 data-number="3.4.6" class="anchored" data-anchor-id="preparando-las-colisiones"><span class="header-section-number">3.4.6</span> Preparando las colisiones</h3>
+<p>Deseamos que nuestro juego nos avise cuando el personaje haya chocado con algún enemigo. Esto se consigue mediante señales, así que nos dirigimos al script y justo debajo de la primera línea escribimos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">signal</span> hit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Con el nodo <code>Player</code> seleccionado, nos vamos al panel <em>Señales</em> y notaremos que la que hemos creado (<code>hit()</code>) se encuentra ahí. Sin embargo, nos interesa seleccionar la señal <code>body_entered(body:Node2D)</code>. Al hacerlo aparecerá el botón <em>Conectar…</em>, si lo presionamos aparece la ventana <em>Conectar señal</em>. Damos clic en el botón <em>Conectar</em> sin modificar nada más. Godot creará una función dentro de nuestro script.</p>
+<p>La función en cuestión tendrá la forma <code>func _on_body_entered():</code>, la cual completaremos escribiendo:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">_on_body_entered</span>(body: Node2D):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hide</span>() <span class="co"># el nodo Player desaparece al ser golpeado</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    hit.<span class="fu">emit</span>() <span class="co"># se emite la señal de ser golpeado</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Debe apagarse la emisión de señal para que no se repita</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">$CollisionShape2D</span>.<span class="fu">set_deferred</span>(<span class="st">"disabled"</span>, <span class="va">true</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Hecho esto, agregamos otro bloque de código que permita reiniciar el juego tras haber perdido:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">start</span>(pos):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    position <span class="op">=</span> pos</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">$CollisionShape2D</span>.disabled <span class="op">=</span> <span class="va">false</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="código-del-jugador" class="level3" data-number="3.4.7">
+<h3 data-number="3.4.7" class="anchored" data-anchor-id="código-del-jugador"><span class="header-section-number">3.4.7</span> Código del jugador</h3>
+<p>El script final del jugador queda como sigue:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">extends</span> Area2D</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">signal</span> hit</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>@export <span class="kw">var</span> speed <span class="op">=</span> <span class="dv">400</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> screen_size</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="bu">_ready</span>() <span class="op">-&gt;</span> void:</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    screen_size <span class="op">=</span> <span class="fu">get_viewport_rect</span>().size</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hide</span>()</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="bu">_process</span>(delta):</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> velocity <span class="op">=</span> Vector2.ZERO <span class="co"># vector de movimiento del jugador</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"derecha"</span>):</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        velocity.x <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"izquierda"</span>):</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        velocity.x <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"abajo"</span>):</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        velocity.y <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"arriba"</span>):</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        velocity.y <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> velocity.<span class="fu">length</span>() <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        velocity <span class="op">=</span> velocity.<span class="fu">normalized</span>() <span class="op">*</span> speed</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.<span class="fu">play</span>()</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.<span class="fu">stop</span>()</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    position <span class="op">+=</span> velocity <span class="op">*</span> delta</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    position <span class="op">=</span> position.<span class="bu">clamp</span>(Vector2.ZERO, screen_size) <span class="co"># clamp evita salir de pantalla</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> velocity.x <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.animation <span class="op">=</span> <span class="st">"caminar"</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.flip_v <span class="op">=</span> <span class="va">false</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.flip_h <span class="op">=</span> velocity.x <span class="op">&lt;</span> <span class="dv">0</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> velocity.y <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.animation <span class="op">=</span> <span class="st">"arriba"</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>        <span class="va">$AnimatedSprite2D</span>.flip_v <span class="op">=</span> velocity.y <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">_on_body_entered</span>(body: Node2D):</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hide</span>() <span class="co"># Player desaparece al ser golpeado</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    hit.<span class="fu">emit</span>() <span class="co"># se emite la señal de ser golpeado</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Debe apagarse la emisión de señal para que no se repita</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    <span class="va">$CollisionShape2D</span>.<span class="fu">set_deferred</span>(<span class="st">"disabled"</span>, <span class="va">true</span>)</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">start</span>(pos):</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    position <span class="op">=</span> pos</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span>()</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    <span class="va">$CollisionShape2D</span>.disabled <span class="op">=</span> <span class="va">false</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="creando-al-enemigo" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="creando-al-enemigo"><span class="header-section-number">3.5</span> Creando al enemigo</h2>
+<p>Los enemigos aparecerán al azar en las orillas de la pantalla y se moverán en línea recta con dirección aleatoria. Podemos notar que será un comportamiento algo sencillo.</p>
+<p>Para su creación utilizaremos una escena que “copiaremos” o <em>instanciaremos</em> para tener muchos enemigos en pantalla con el mismo comportamiento (pero no la misma posición, claro está).</p>
+<section id="configurando-al-enemigo" class="level3" data-number="3.5.1">
+<h3 data-number="3.5.1" class="anchored" data-anchor-id="configurando-al-enemigo"><span class="header-section-number">3.5.1</span> Configurando al enemigo</h3>
+<p>Crearemos una escena nueva y agregaremos un nodo <code>RigidBody2D</code> como nodo raíz. Además le cambiaremos el nombre para dejarlo como <code>Mob</code>. Luego agregaremos tres nodos hijos, los cuales serán: un <code>AnimatedSprite2D</code>, un <code>CollisionShape2D</code> y un <code>VisibleOnScreenNotifier2D</code>.</p>
+<p>Nos aseguramos de agrupar los nodos en torno al nodo raíz (presionando <kbd title="Ctrl+G" aria-hidden="true">Ctrl+G</kbd><span class="visually-hidden">Ctrl+G</span>) o dando clic en el botón correspondiente. Con <code>Mob</code> seleccionado, nos vamos al Inspector y cambiamos la propiedad <code>Gravity Scale</code> que se encuentra en la sección <em>RigidBody2D</em> a <code>0</code>. Con esto evitaremos que el enemigo caiga al suelo. Luego, en la sección <em>CollisionObject2D</em>, apartado <em>Collision</em>, desmarcaremos la capa 1 del sub-apartado <em>Mask</em>, para así evitar que los enemigos choquen entre sí.</p>
+</section>
+<section id="animando-al-enemigo" class="level3" data-number="3.5.2">
+<h3 data-number="3.5.2" class="anchored" data-anchor-id="animando-al-enemigo"><span class="header-section-number">3.5.2</span> Animando al enemigo</h3>
+<p>Mismo proceso que con el jugador:</p>
+<ul>
+<li>Seleccionar el nodo <code>AnimatedSprite2D</code>.</li>
+<li>Escalar el nodo a valores de <code>0.75</code> en ambas dimensiones.</li>
+<li>Crear un nuevo <em>Sprite Frame</em> desde la sección <em>AnimatedSprite2D</em> en el Inspector.</li>
+<li>Renombrar la animación por defecto a <code>volar</code>.</li>
+<li>Asignar los sprites correspondientes desde la carpeta <code>assets</code>.</li>
+<li>Cambiar la velocidad de animación a <code>3</code>.</li>
+<li>Crear las animaciones <code>nadar</code> y <code>caminar</code>.</li>
+<li>Repetir los mismos pasos que en <code>volar</code>.</li>
+<li>Con el nodo <code>CollisionShape2D</code> seleccionado, agregamos una nueva <em>CapsuleShape2D</em>, solo que debemos rotarla 90° para alinearla con los sprites. Esto se logra cambiando la propiedad <em>Rotation</em> que está en el apartado <em>Transform</em> de la sección <em>Node2D</em> en el inspector.</li>
+</ul>
+<p>Podemos guardar la escena si es que no lo hemos hecho ya (se sugiere que quede como <em>mob.tscn</em>).</p>
+</section>
+<section id="programando-al-enemigo" class="level3" data-number="3.5.3">
+<h3 data-number="3.5.3" class="anchored" data-anchor-id="programando-al-enemigo"><span class="header-section-number">3.5.3</span> Programando al enemigo</h3>
+<p>Agreguemos un script al nodo <code>Mob</code>, sin editar nada, solo la ruta de guardado. Nos vamos directamente a la función <code>_ready()</code>, en la cual reproduciremos una de las tres animaciones que agregamos, pero de manera aleatoria.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="bu">_ready</span>():</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> mob_types <span class="op">=</span> <span class="fu">Array</span>(<span class="va">$AnimatedSprite2D</span>.sprite_frames.<span class="fu">get_animation_names</span>())</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.animation <span class="op">=</span> mob_types.<span class="fu">pick_random</span>()</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.<span class="fu">play</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>En la primera línea obtenemos los nombres de las animaciones que ya creamos y los asignamos a un arreglo. En la segunda elegimos al azar una de estas animaciones desde el arreglo y en la última la reproduciremos.</p>
+<p>Por último, debemos pensar en que al aparecer enemigos aleatoriamente, debemos gestionar qué debe pasar cuando salgan de pantalla. Lo normal y eficiente es eliminarlos. Lo haremos seleccionando el nodo restante (VisibleOnScreenNotifier2D), luego yendo hacia el panel de <em>Señales</em> y conectar <code>screen_exited()</code> a <code>Mob</code>. Dentro de esta señal, en su código escribimos la función <code>queue_free()</code>, que precisamente elimina el nodo al final del cuadro.</p>
+</section>
+<section id="código-del-enemigo" class="level3" data-number="3.5.4">
+<h3 data-number="3.5.4" class="anchored" data-anchor-id="código-del-enemigo"><span class="header-section-number">3.5.4</span> Código del enemigo</h3>
+<p>El script final que dicta cómo se comporta el enemigo queda así:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">extends</span> RigidBody2D</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="bu">_ready</span>():</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> mob_types <span class="op">=</span> <span class="fu">Array</span>(<span class="va">$AnimatedSprite2D</span>.sprite_frames.<span class="fu">get_animation_names</span>())</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.animation <span class="op">=</span> mob_types.<span class="fu">pick_random</span>()</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">$AnimatedSprite2D</span>.<span class="fu">play</span>()</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">_on_visible_on_screen_notifier_2d_screen_exited</span>() <span class="op">-&gt;</span> void:</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">queue_free</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="escena-principal" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="escena-principal"><span class="header-section-number">3.6</span> Escena principal</h2>
+<p>Creamos una escena nueva a la que agregaremos un nodo <code>Node</code> que renombraremos como <code>Main</code>. Al ser un nodo que manejará la lógica del juego, no es necesario que tenga propiedades 2D, por eso elegimos uno más “general”. Con <code>Main</code> seleccionado, damos clic en el botón <em>Instanciar escena hija</em>, el cual tiene forma de cadena y elegimos la escena <code>player.tscn</code>.</p>
+<section id="configurando-la-escena" class="level3" data-number="3.6.1">
+<h3 data-number="3.6.1" class="anchored" data-anchor-id="configurando-la-escena"><span class="header-section-number">3.6.1</span> Configurando la escena</h3>
+<p>Enseguida agregamos como nodos hijos de <code>Main</code> tres nodos <code>Timer</code> y uno <code>Marker2D</code>. Los renombraremos como <code>MobTimer</code> (este nos permite elegir la frecuencia de aparición de los enemigos), <code>ScoreTimer</code> (este se incrementará conforme pasen los segundos, contando como el puntaje), <code>StartTimer</code> (debemos darle al jugador tiempo de prepararse para la próxima partida) y <code>StartPosition</code> (que define dónde aparecerá el jugador al inicio), respectivamente.</p>
+<p>Ahora modificaremos la propiedad <em>Wait Time</em> de cada <em>timer</em> o contador a <code>0.5</code>, <code>1</code> y <code>2</code>, respectivamente. Nos quedaremos en el tercer contador un momento, ya que también debemos cambiar su propiedad <em>One Shot</em> a <em>Activado</em>.</p>
+<p>En cuanto al nodo <code>StartPosition</code>, cambiamos su propiedad <em>Position</em> (está dentro del apartado <em>Transform</em>) a <code>(240,450)</code>.</p>
+</section>
+<section id="agregando-los-enemigos" class="level3" data-number="3.6.2">
+<h3 data-number="3.6.2" class="anchored" data-anchor-id="agregando-los-enemigos"><span class="header-section-number">3.6.2</span> Agregando los enemigos</h3>
+<p>Seleccionamos <code>Main</code> y agregamos un nodo hijo <code>Path2D</code> al que llamaremos <code>MobPath</code>. Seleccionamos este nuevo nodo y veremos que se agregan más botones encima del viewport. Debemos dar clic en los botones <em>Usar ajuste inteligente</em> y <em>Usar ajuste de cuadrícula</em> para facilitar lo que haremos a continuación. Nos vamos a los botones que aparecen al dar clic en el nodo <code>MobPath</code> y daremos clic en <em>Agregar punto</em>, para luego delimitar la pantalla del juego con un clic en cada una de las esquinas, comenzando por el superior izquierdo, luego el superior derecho, enseguida el inferior derecho y por último, el inferior izquierdo. Después damos clic en el botón <em>Cerrar la curva</em> y listo, hemos delimitado la pantalla.</p>
+<p>Agregamos un nodo hijo de <code>MobPath</code>, el cual será del tipo <code>PathFollow2D</code> y le llamaremos <code>MobSpawnLocation</code>. Este último nodo estará girando automáticamente al moverse, por lo que resulta ideal para nuestros enemigos.</p>
+</section>
+<section id="programando-la-escena-principal" class="level3" data-number="3.6.3">
+<h3 data-number="3.6.3" class="anchored" data-anchor-id="programando-la-escena-principal"><span class="header-section-number">3.6.3</span> Programando la escena principal</h3>
+<p>Agregamos un script a <code>Main</code> y ahí declararemos una variable que nos permita elegir la escena que vamos a instanciar:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">extends</span> Node</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>@export <span class="kw">var</span> mob_scene: PackedScene</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> score</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Con esto hecho, debería aparecer la propiedad <em>Mob Scene</em> en el inspector. Daremos clic donde dice [vacío] y luego en <em>Cargar</em>. Seleccionamos la escena <code>mob.tscn</code> para asignarla.</p>
+<p>Lo siguiente es seleccionar la instancia <code>Player</code> en el panel Escenas y luego abrir el panel Señales. Debemos dar doble clic en la señal <code>hit()</code> y ahí, en el cuadro de conexión, escribiremos <code>game_over</code> como <em>Método receptor</em>, para así obligar a que la señal <code>hit()</code> emitida por <code>Player</code> sea gestionada por el script <code>Main</code>. Daremos clic en <em>Conectar</em> sin editar nada más.</p>
+<p>Esto creará una función llamada <code>game_over()</code>, la cual completaremos con las siguientes líneas:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">game_over</span>():</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">$ScoreTimer</span>.<span class="fu">stop</span>()</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$MobTimer</span>.<span class="fu">stop</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>También agregaremos una nueva función llamada <code>new_game()</code> con el siguiente código:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">new_game</span>():</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$Player</span>.<span class="fu">start</span>(<span class="va">$StartPosition</span>.position)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">$StartTimer</span>.<span class="fu">start</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Ahora toca conectar los temporizadores con el script principal. Para ello seleccionamos cada <em>timer</em> en el panel Escena y luego damos doble clic en la señal <code>timeout()</code> de su respectivo panel Señales, dejando las opciones del cuadro de conexiones por defecto dando clic en el botón <em>Conectar</em>.</p>
+<p>Una vez hecho esto, deberíamos poder ver que cada <em>timer</em> tiene una conexión a señal para su respectivo <code>timeout()</code>. Entonces toca definir cómo operará cada temporizador, lo cual haremos con las siguientes líneas:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">_on_score_timer_timeout</span>():</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    score <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">_on_start_timer_timeout</span>():</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">$MobTimer</span>.<span class="fu">start</span>()</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">$ScoreTimer</span>.<span class="fu">start</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>El <code>MobTimer</code> tendrá un comportamiento diferente, ya que instanciaremos al <code>Mob</code>, eligiendo una posición de inicio aleatoria a lo largo de <code>Path2D</code> y luego poniéndolo en movimiento. El nodo <code>PathFollow2D</code> girará de manera automática conforme siga la ruta, por lo que lo usaremos para escoger la dirección y posición de cada enemigo. Cambiaremos la velocidad por cada instancia del enemigo, para dar mayor variedad a nuestro juego. Añadiremos la nueva instancia a la escena usando <code>add_child()</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">_on_mob_timer_timeout</span>():</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Crea una nueva instancia de la escena "Mob"</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> mob <span class="op">=</span> mob_scene.<span class="fu">instantiate</span>()</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Elige una ubicación aleatoria sobre "Path2D"</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> mob_spawn_location <span class="op">=</span> <span class="va">$MobPath</span><span class="op">/</span>MobSpawnLocation</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    mob_spawn_location.progress_ratio <span class="op">=</span> <span class="bu">randf</span>()</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Configura la posición del enemigo a la aleatorizada</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    mob.position <span class="op">=</span> mob_spawn_location.position</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Configura la dirección perpendicular del enemigo a la dirección de la ruta</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> direction <span class="op">=</span> mob_spawn_location.rotation <span class="op">+</span> <span class="cn">PI</span> <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Agrega aleatoriedad a la dirección</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    direction <span class="op">+=</span> <span class="fu">randf_range</span>(<span class="op">-</span><span class="cn">PI</span> <span class="op">/</span> <span class="dv">4</span>, <span class="cn">PI</span> <span class="op">/</span> <span class="dv">4</span>)</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    mob.rotation <span class="op">=</span> direction</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Elige un vector velocidad para el enemigo</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> velocity <span class="op">=</span> <span class="fu">Vector2</span>(<span class="fu">randf_range</span>(<span class="fl">150.0</span>, <span class="fl">250.0</span>), <span class="fl">0.0</span>)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    mob.linear_velocity <span class="op">=</span> velocity.<span class="fu">rotated</span>(direction)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Hace aparecer al enemigo agregándolo a la escena principal</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_child</span>(mob)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Nota
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Usamos <code>PI</code> porque Godot utiliza radianes y no grados en sus funciones. <code>PI</code> representa media vuelta en radianes. Si deseamos utilizar grados, debemos convertirlos mediante las funciones <code>deg_to_rad()</code> y <code>rad_to_deg()</code> para intercambiarlos.</p>
+</div>
+</div>
+</section>
+<section id="probando-la-escena" class="level3" data-number="3.6.4">
+<h3 data-number="3.6.4" class="anchored" data-anchor-id="probando-la-escena"><span class="header-section-number">3.6.4</span> Probando la escena</h3>
+<p>Agreguemos esta línea a la función <code>_ready()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="bu">_ready</span>():</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">new_game</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Ahora es turno de definir nuestra escena principal. Esto se consigue dando clic derecho a la pestaña de la escena deseada, que en este caso es <code>main.tscn</code>, y eligiendo la opción <em>Establecer como escena principal</em>.</p>
+<p>Basta con dar clic en el botón de <em>Reproducir proyecto</em> (el típico icono de <em>Play</em> que se encuentra arriba del inspector) o presionando <kbd title="F5" aria-hidden="true">F5</kbd><span class="visually-hidden">F5</span> y ver la ventana de nuestro juego. Si ya estamos conformes con el funcionamiento, cambiamos la línea <code>new_game()</code> por <code>pass</code> en la función <code>_ready()</code> para continuar con la interfaz de usuario.</p>
+</section>
+</section>
+<section id="interfaz-de-usuario" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="interfaz-de-usuario"><span class="header-section-number">3.7</span> interfaz de usuario</h2>
+<p>Démosle a nuestro juego los toques finales: agreguemos el puntaje en pantalla, un botón de inicio/reinicio y un mensaje de <em>Game Over</em>.</p>
+<section id="configurando-el-hud" class="level3" data-number="3.7.1">
+<h3 data-number="3.7.1" class="anchored" data-anchor-id="configurando-el-hud"><span class="header-section-number">3.7.1</span> Configurando el HUD</h3>
+<p>Crearemos una nueva escena y le agregaremos un nodo <code>CanvasLayer</code> como nodo raíz y le cambiamos el nombre a <code>HUD</code>. Este nodo permite colocar elementos en una capa superpuesta a todos los demás elementos, por lo que nunca quedarán ocultos, sin importar lo que pase en pantalla.</p>
+<p>Con <code>HUD</code> seleccionado, agregamos como nodos hijos los siguientes elementos:</p>
+<ul>
+<li><code>Label</code>, renombrado a <code>ScoreLabel</code></li>
+<li><code>Label</code>, renombrado a <code>Message</code></li>
+<li><code>Button</code>, renombrado a <code>StartButton</code></li>
+<li><code>Timer</code>, renombrado a <code>MessageTimer</code></li>
+</ul>
+<p>Seleccionamos <code>ScoreLabel</code> y escribimos el número cero en el campo <code>Text</code> del inspector, bajamos un poco y veremos las propiedades <em>Vertical Alignment</em> y <em>Horizontal Alignment</em>: las cambiamos a <code>Center</code> ambas. La fuente que viene por defecto es bastante mala, por lo que cargaremos la que viene incluida en los assets del curso. Para ello, bajamos a la sección <em>Control</em> y localizamos el apartado <em>Theme Overrides</em>. Ahí en la propiedad <em>Fonts -&gt; FontFile</em> damos clic en la pequeña flecha que apunta hacia abajo y enseguida seleccionamos <em>Cargar</em>. Seleccionamos el archivo <code>Xolonium-Regular.ttf</code>. Aún queda cambiar su tamaño, por lo que daremos clic en la propiedad <em>Font Size</em> que se encuentra justo debajo y lo editamos para dejarlo en 64 píxeles.</p>
+<p>Repetiremos estos pasos para la otra etiqueta y el botón.</p>
+</section>
+<section id="posicionando-los-elementos-del-hud" class="level3" data-number="3.7.2">
+<h3 data-number="3.7.2" class="anchored" data-anchor-id="posicionando-los-elementos-del-hud"><span class="header-section-number">3.7.2</span> Posicionando los elementos del HUD</h3>
+<p>El siguiente paso es colocar los diferentes elementos en la pantalla, ya que en este momento se traslapan entre sí. Seleccionamos <code>ScoreLabel</code> y veremos que aparecen tres botones nuevos encima del viewport. Ubiquemos el primero, el cual nos permite utilizar anclajes preconfigurados y lo desplegamos. Escogemos el anclaje <em>Centro Superior</em> para colocar la etiqueta centrada y arriba en la pantalla.</p>
+<p>Para la etiqueta <code>Message</code> pondremos el texto <em>¡Esquiva todo!</em>, ajustamos la alineación a Centro en vertical y horizontal; cambiamos su propiedad <em>AutoWrap Mode</em> a <em>Word</em> para que pueda expresarse en más de una línea si fuera necesario; dentro de <em>Control - Layout - Transform</em> cambiamos la propiedad <em>Size X</em> a 480 para que ocupe la pantalla por completo horizontalmente; por último, dejamos el ancla en <em>Centro</em>.</p>
+<p>Para <code>StartButton</code> pondremos el texto <em>¡Inicia!</em> y en <em>Control - Layout - Transform</em> cambiamos <em>Size X</em> a <code>200</code>, <em>Size Y</em> a <code>100</code> (para darle mayor espacio entre el texto y el borde) y <em>Position Y</em> a <code>580</code>. Por último, el anclaje lo dejamos en <em>Centro Inferior</em>.</p>
+<p>En el <code>MessageTimer</code> ajustamos <em>Wait Time</em> a 2 y activamos su <em>One Shot</em>.</p>
+</section>
+<section id="programando-el-hud" class="level3" data-number="3.7.3">
+<h3 data-number="3.7.3" class="anchored" data-anchor-id="programando-el-hud"><span class="header-section-number">3.7.3</span> Programando el HUD</h3>
+<p>Agregamos un script al nodo <code>HUD</code> y escribimos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">extends</span> CanvasLayer</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Notifica al nodo `Main`que el botón ha sido presionado</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">signal</span> start_game</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Quiza queramos mostrar un mensaje temporal para preparar al jugador, por lo que agregamos el siguiente código:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">show_message</span>(text):</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">$Message</span>.text <span class="op">=</span> text</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$Message</span>.<span class="fu">show</span>()</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">$MessageTimer</span>.<span class="fu">start</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>También debemos decirle al motor qué hacer cuando el jugador pierda. Con el siguiente código mostraremos el mensaje de <em>¡Has perdido!</em> durante dos segundos, luego volverá a la pantalla de título y después, tras una pausa contada por un timer “abstracto”, mostrará el botón de inicio.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">show_game_over</span>():</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show_message</span>(<span class="st">"¡Has perdido!"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Espera a que MessageTimer termine de contar</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    await <span class="va">$MessageTimer</span>.timeout</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">$Message</span>.text <span class="op">=</span> <span class="st">"¡Esquiva todo!"</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">$Message</span>.<span class="fu">show</span>()</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Crea un contador de un solo tiro y le espera a que termine</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    await <span class="fu">get_tree</span>().<span class="fu">create_timer</span>(<span class="fl">1.0</span>).timeout</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="va">$StartButton</span>.<span class="fu">show</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Nota
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Cuando necesitemos hacer una pausa por un breve tiempo, una alternativa al uso de un nodo temporizador es usar la función <code>create_timer()</code> del árbol de escena. Esto puede ser muy útil para retrasar, como en el código anterior, donde queremos esperar un poco de tiempo antes de mostrar el botón “¡Inicia!”.</p>
+</div>
+</div>
+<p>Ahora agregaremos lo siguiente para actualizar el puntaje:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">update_score</span>(score):</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">$ScoreLabel</span>.text <span class="op">=</span> <span class="bu">str</span>(score)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Seleccionamos <code>StartButton</code> y conectamos la señal <code>pressed()</code> a <code>HUD</code>. Luego seleccionamos <code>MessageTimer</code> y conectamos su señal <code>timeout()</code> también a <code>HUD</code> y completamos las funciones resultantes tal como sigue:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">_on_start_button_pressed</span>():</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">$StartButton</span>.<span class="fu">hide</span>()</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    start_game.<span class="fu">emit</span>()</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">_on_message_timer_timeout</span>():</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">$Message</span>.<span class="fu">hide</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="conectando-el-hud-a-la-escena-principal" class="level3" data-number="3.7.4">
+<h3 data-number="3.7.4" class="anchored" data-anchor-id="conectando-el-hud-a-la-escena-principal"><span class="header-section-number">3.7.4</span> Conectando el HUD a la escena principal</h3>
+<p>Regresaremos a la escena principal, seleccionando su pestaña en el viewport. Instanciaremos la escena <code>hud.tscn</code> y abrimos <code>main.gd</code> en el motor. Lo siguiente es seleccionar la escena recién instanciada (<code>HUD</code>) e irnos a Señales, donde daremos doble clic en la señal <code>start_game()</code>. En el nuevo cuadro que aparece, nos aseguramos de tener seleccionado <code>Main</code> y damos clic en el botón <em>Seleccionar</em> del apartado <em>Método receptor</em> para enseguida escoger <code>new_game()</code>. Damos clic en <em>Aceptar</em> y luego en <em>Conectar</em>. Debe aparecer el icono de flecha verde junto a la función <code>new_game()</code> en el script.</p>
+<p>Ahora toca escribir el siguiente código en la misma función:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="va">$HUD</span>.<span class="fu">update_score</span>(score)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="va">$HUD</span>.<span class="fu">show_message</span>(<span class="st">"¿Listo?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Nos vamos a la función <code>game_over()</code> y agregamos lo siguiente:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="va">$HUD</span>.<span class="fu">show_game_over</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Para finalizar, debemos sincronizar la interfaz con el puntaje, para lo cual nos dirigimos ahora a la función <code>_on_score_timer_timeout()</code> y agregamos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="va">$HUD</span>.<span class="fu">update_score</span>(score)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="removiendo-los-enemigos" class="level3" data-number="3.7.5">
+<h3 data-number="3.7.5" class="anchored" data-anchor-id="removiendo-los-enemigos"><span class="header-section-number">3.7.5</span> Removiendo los enemigos</h3>
+<p>Podemos notar que al perder, los enemigos siguen en pantalla y permanecerán incluso si comenzamos un juego nuevo. Podemos quitar este comportamiento mediante los <em>grupos</em>. Nos vamos a la escena <code>mob</code> en su respectiva pestaña, seleccionamos el nodo <code>Mob</code> y nos dirigimos al panel <em>Grupos</em> (está a la derecha de <em>Señales</em>) y damos clic en el botón <em>+</em> para crear un grupo nuevo. Le pondremos “mobs” como nombre y damos clic en <em>Aceptar</em>. Ahora todos los enemigos estarán agrupados.</p>
+<p>Es momento de regresar a <code>main.gd</code> y escribir en la función <code>new_game()</code> lo siguiente:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_tree</span>().<span class="fu">call_group</span>(<span class="st">"mobs"</span>, <span class="st">"queue_free"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Recordemos que <code>queue_free()</code> elimina lo que está referenciado en ella, así que esto que acabamos de escribir la llama y la aplica al grupo “mobs”, mediante <code>call_group()</code>.</p>
+<p>Prácticamente ya terminamos el juego, solo nos resta agregar efectos de sonido y mejoras en la calidad de vida, como atajos de teclado.</p>
+</section>
+</section>
+<section id="toques-finales" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="toques-finales"><span class="header-section-number">3.8</span> Toques finales</h2>
+<section id="cambiando-el-fondo" class="level3" data-number="3.8.1">
+<h3 data-number="3.8.1" class="anchored" data-anchor-id="cambiando-el-fondo"><span class="header-section-number">3.8.1</span> Cambiando el fondo</h3>
+<p>Cambiemos el color de fondo del juego mediante un nodo <code>ColorRect</code>, el cual agregamos como hijo de <code>Main</code>. Debemos asegurarnos de arrastrar este nodo hacia la parte superior del árbol de nodos, de manera que quede justo debajo de <code>Main</code>, con el fin de que quede por debajo de todo en pantalla. Su única propiedad es el color, así que elegimos uno que nos agrade. También podemos utilizar una imagen, pero en ese caso utilizaremos el nodo <code>TextureRect</code>. Por último, modificamos el anclaje de este nodo a <em>Completo</em> para que así cubra la pantalla.</p>
+</section>
+<section id="agregando-sonido" class="level3" data-number="3.8.2">
+<h3 data-number="3.8.2" class="anchored" data-anchor-id="agregando-sonido"><span class="header-section-number">3.8.2</span> Agregando sonido</h3>
+<p>No debemos concibir un juego sin música o efectos de sonido. Así que agregamos dos nodos <code>AudioStreamPlayer</code> como hijos de <code>Main</code> y les renombramos como <code>Music</code> y <code>Death</code>, respectivamente. Para el primero seleccionamos el archivo <code>House in a Forest Loop.ogg</code> en su propiedad <em>Stream -&gt; Nuevo -&gt; Cargar</em>. Hecho esto, damos clic derecho en el archivo (aún dentro del inspector) y seleccionamos <em>Hacer único</em> y enseguida damos clic izquierdo y activamos la propiedad <em>Loop</em>. Repetimos lo mismo para el segundo, pero ahora utilizaremos <code>gameover.wav</code> y no lo haremos único. Los archivos de audio se encuentran en la carpeta <code>assets/art</code> que importamos al inicio.</p>
+<p>Para reproducir la música debemos escribir su activación en el código, yendo a la función <code>new_game()</code> y escribiendo al final:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="va">$Music</span>.<span class="fu">play</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Para detener la música y reproducir el sonido de muerte, nos vamos a <code>game_over()</code> y agregamos:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="va">$Music</span>.<span class="fu">stop</span>()</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="va">$DeathSound</span>.<span class="fu">play</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./conceptosclave.html" class="pagination-link" aria-label="Conceptos Clave">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conceptos Clave</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./primer3D.html" class="pagination-link" aria-label="primer3D.html">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">primer3D.html</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
