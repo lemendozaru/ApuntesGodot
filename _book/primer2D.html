@@ -481,7 +481,7 @@ window.Quarto = {
   <li><a href="#atajos-de-teclado" id="toc-atajos-de-teclado" class="nav-link" data-scroll-target="#atajos-de-teclado"><span class="header-section-number">3.8.3</span> Atajos de teclado</a></li>
   <li><a href="#soporte-para-control-o-mando" id="toc-soporte-para-control-o-mando" class="nav-link" data-scroll-target="#soporte-para-control-o-mando"><span class="header-section-number">3.8.4</span> Soporte para control o mando</a></li>
   </ul></li>
-  <li><a href="#exportando-el-juego-finalizado" id="toc-exportando-el-juego-finalizado" class="nav-link" data-scroll-target="#exportando-el-juego-finalizado"><span class="header-section-number">4</span> Exportando el juego finalizado</a></li>
+  <li><a href="#exportando-el-juego-finalizado" id="toc-exportando-el-juego-finalizado" class="nav-link" data-scroll-target="#exportando-el-juego-finalizado"><span class="header-section-number">3.9</span> Exportando el juego finalizado</a></li>
   </ul>
 </nav>
     </div>
@@ -962,8 +962,8 @@ window.Quarto = {
 <p>Probemos, nuestro juego ya debería funcionar con el control.</p>
 </section>
 </section>
-<section id="exportando-el-juego-finalizado" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Exportando el juego finalizado</h1>
+<section id="exportando-el-juego-finalizado" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="exportando-el-juego-finalizado"><span class="header-section-number">3.9</span> Exportando el juego finalizado</h2>
 <p>Podemos compartir el juego simplemente comprimiendo la carpeta del proyecto y asegurarnos de que quien quiera probarlo tenga Godot instalado. Pero si eso no es lo que deseamos, debemos exportar el juego para crear un ejecutable o binario.</p>
 <p>Los binarios de nuestro juego se crean mediante el menú <em>Proyecto -&gt; Exportar</em>. Ahí veremos que de entrada estará vacío, ya que no tenemos ningún ajuste predefinido o <em>presets</em>. Para agregar uno, basta dar clic en el botón correspondiente y seleccionar la plataforma para la que queremos crear el binario. A modo de ejemplo, probemos el de <em>Windows Desktop</em> o el de <em>Linux</em>. A pesar de seleccionarlo, se nos dirá que aún falta una plantilla de exportación, lo cual impedirá generar el ejecutable. Damos clic en el enlace <em>Administrar plantillas de exportación</em> y después en <em>Descargar e instalar</em>. Esto descargará archivos que pueden llegar a ser bastante pesados (en el caso de escritorio, es de mas de 1 GB).</p>
 <p>Con las plantillas y presets descargados y listos, podemos ya exportar nuestro proyecto. En la <em>Ruta de exportación</em> deberíamos escoger una diferente a la de nuestro proyecto, ya que si tenemos control de versiones, no resulta buena idea publicar el binario en la misma carpeta, ya que este debería publicarse como <em>Releases</em> en Github, por ejemplo. Se sugiere quitar la <em>Envoltura de consola de exportación</em> de la pestaña <em>Opciones</em> y esscoger <em>Exportar escenas seleccionadas</em> (se seleccionan todas con sus dependencias, naturalmente) de la pestaña <em>Recursos</em>. Todo lo demás puede dejarse tal como está. El proceso de exportación debe ser breve y generar los ejecutables deseados en la ruta especificada. Probemos que funcionen y si es así, ¡listo! ya podemos publicar nuestro juego.</p>
