@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>primer3d – Desarrollo de Videojuegos</title>
+<title>4&nbsp; Primer juego en 3D – Desarrollo de Videojuegos</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -47,6 +82,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/bootstrap/bootstrap-8a5c5494549ee22ce5ac99faca083a9b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/bootstrap/bootstrap-dark-82698d6252e92dd5db1169a928d6c1e6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <link href="site_libs/bootstrap/bootstrap-8a5c5494549ee22ce5ac99faca083a9b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-contrib/kbd/kbd.js"></script>
+<link href="site_libs/quarto-contrib/kbd/kbd.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -75,10 +112,39 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
-<body class="nav-sidebar floating fullcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
       const mode = bsSheetEl.getAttribute("data-mode");
       const bodyEl = window.document.querySelector("body");
@@ -249,7 +315,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./conceptosclave.html">Introducción</a></li><li class="breadcrumb-item"><a href="./primer3D.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">primer3D.html</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./conceptosclave.html">Introducción</a></li><li class="breadcrumb-item"><a href="./primer3D.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Primer juego en 3D</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -313,7 +379,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./primer3D.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">primer3D.html</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Primer juego en 3D</span></span></a>
   </div>
 </li>
       </ul>
@@ -358,16 +424,122 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contenido</h2>
+   
+  <ul>
+  <li><a href="#configurando-el-área-de-juego" id="toc-configurando-el-área-de-juego" class="nav-link active" data-scroll-target="#configurando-el-área-de-juego"><span class="header-section-number">4.1</span> Configurando el área de juego</a>
+  <ul class="collapse">
+  <li><a href="#importando-assets" id="toc-importando-assets" class="nav-link" data-scroll-target="#importando-assets"><span class="header-section-number">4.1.1</span> Importando <em>assets</em></a></li>
+  <li><a href="#creando-el-piso" id="toc-creando-el-piso" class="nav-link" data-scroll-target="#creando-el-piso"><span class="header-section-number">4.1.2</span> Creando el piso</a></li>
+  <li><a href="#agregando-luces" id="toc-agregando-luces" class="nav-link" data-scroll-target="#agregando-luces"><span class="header-section-number">4.1.3</span> Agregando luces</a></li>
+  </ul></li>
+  <li><a href="#creando-al-jugador" id="toc-creando-al-jugador" class="nav-link" data-scroll-target="#creando-al-jugador"><span class="header-section-number">4.2</span> Creando al jugador</a>
+  <ul class="collapse">
+  <li><a href="#configurando-lo-visual" id="toc-configurando-lo-visual" class="nav-link" data-scroll-target="#configurando-lo-visual"><span class="header-section-number">4.2.1</span> Configurando lo visual</a></li>
+  <li><a href="#creando-el-mapeado-de-entradas" id="toc-creando-el-mapeado-de-entradas" class="nav-link" data-scroll-target="#creando-el-mapeado-de-entradas"><span class="header-section-number">4.2.2</span> Creando el mapeado de entradas</a></li>
+  <li><a href="#programando-al-jugador" id="toc-programando-al-jugador" class="nav-link" data-scroll-target="#programando-al-jugador"><span class="header-section-number">4.2.3</span> Programando al jugador</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./conceptosclave.html">Introducción</a></li><li class="breadcrumb-item"><a href="./primer3D.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">primer3D.html</span></a></li></ol></nav></header>
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./conceptosclave.html">Introducción</a></li><li class="breadcrumb-item"><a href="./primer3D.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Primer juego en 3D</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Primer juego en 3D</span></h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
+</header>
 
 
+<p>Crearemos ahora un juego sencillo en tres dimensiones, el cual nos permitirá consolidar lo aprendido en el juego anterior y obtener nuevas habilidades. Programaremos una tercera dimensión, no solamente en lo visual con su respectivo HUD, sino mecánicamente, ya que introduciremos el salto como tal. También abordaremos colisiones y capas físicas.</p>
+<p>Seguimos con la convicción de que las capturas de pantalla no serán necesarias, siempre y cuando se trabaje con el motor y nos ensuciemos las manos directa y personalmente.</p>
+<p>Este juego será una evolución del anterior, con la salvedad de que ahora sí podremos eliminar a nuestros enemigos al aplastarlos tras haber saltado sobre ellos.</p>
+<section id="configurando-el-área-de-juego" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="configurando-el-área-de-juego"><span class="header-section-number">4.1</span> Configurando el área de juego</h2>
+<section id="importando-assets" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="importando-assets"><span class="header-section-number">4.1.1</span> Importando <em>assets</em></h3>
+<p>Comenzaremos mencionando que es necesario tener el programa <em>Blender</em> instalado en nuestro equipo, ya que la importación de modelos 3D así lo requieren. Así que instalemos dicho software y después regresamos acá.</p>
+<p>Continuamos importando los <em>assets</em> que están colgados en la plataforma del curso. El propio Godot nos preguntará sobre Blender y en caso de estar instalado y reconocido, nos lo dirá también. No olvidemos crear una carpeta llamada <code>assets</code>, que es donde llevaremos nuestros elementos al importarlos.</p>
+</section>
+<section id="creando-el-piso" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="creando-el-piso"><span class="header-section-number">4.1.2</span> Creando el piso</h3>
+<p>Siguiente paso, crear nuestra escena principal con un <code>Node</code> al cual llamaremos <code>Main</code>. Guardamos la escena con su respectivo nombre. Necesitamos un piso para que nuestro jugador no se caiga (y tampoco sus enemigos), por lo que agregaremos un nodo <code>StaticBody3D</code>, el cual es perfecto para paredes, techos o pisos. Pero por sí solo no será muy útil, necesitamos su <code>CollisionShape3D</code>. Agregamos el primer nodo como hijo de <code>Main</code> y el segundo como su “nieto”. Cambiaremos el nombre de <code>StaticBody3D</code> a <code>Ground</code>.</p>
+<p>Volteemos hacia <code>CollisionShape3D</code>, ya que necesita tener una forma. En el inspector se la damos como <em>BoxShape3D</em>. En el viewport veremos que ahora aparece un cubo en el centro. Vamos a darle dimensiones más de “piso plano” a este elemento. Para ello, damos clic en la palabra <em>BoxShape3D</em> para desplegarla y cambiamos sus dimensiones: <em>Size X</em> a <code>60</code>, <em>Size Y</em> a <code>2</code> y <em>Size Z</em> a <code>60</code>. Podemos disminuir el zoom en el viewport para ver mejor el tamaño y forma de nuestro piso plano.</p>
+<p>Sin embargo, al ejecutar la escena no veremos nuestro piso, ya que es solo la caja de colisión. Si deseamos verlo, debemos agregar un nodo <code>MeshInstance3D</code> como hijo de <code>Ground</code>. En su propiedad <em>Mesh</em> debemos escogerle una: será <code>BoxMesh</code>. Ya elegido, toca darle clic al icono de cubo para desplegarlo y cambiar sus dimensiones para que coincidan con la caja de colisión.</p>
+<p>El siguiente paso es mover <code>Ground</code> un poco hacia abajo, una unidad, siendo específicos. Lo logramos seleccionando dicho nodo y en su propiedad <em>Transform -&gt; Position Y</em> cambiarla a <code>-1</code>.</p>
+</section>
+<section id="agregando-luces" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="agregando-luces"><span class="header-section-number">4.1.3</span> Agregando luces</h3>
+<p>Seleccionamos <code>Main</code> y le agregamos como hijo un nodo <code>DirectionalLight3D</code>. Acto seguido, lo moveremos hacia arriba arrastrando la flecha verde y lo rotaremos sobre el eje <span class="math inline">\(x\)</span> (sobre el arco rojo) hasta conseguir que el suelo quede iluminado por completo. En el inspector, sección <em>Light3D</em> activamos la propiedad <em>Shadow</em>.</p>
+</section>
+</section>
+<section id="creando-al-jugador" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="creando-al-jugador"><span class="header-section-number">4.2</span> Creando al jugador</h2>
+<section id="configurando-lo-visual" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="configurando-lo-visual"><span class="header-section-number">4.2.1</span> Configurando lo visual</h3>
+<p>Creamos una escena nueva y seleccionamos un nodo <code>CharacterBody3D</code> como raíz, para luego renombrarlo <code>Player</code>. Este tipo de nodo es similar al <code>RigidBody2D</code> que usamos como enemigo en el juego pasado en cuanto a que puede interactuar con el entorno, pero es diferente en tanto que no es controlado por las físicas del motor, sino por nosotros mismos.</p>
+<p>Agregamos como hijo de <code>Player</code> un nodo <code>Node3D</code> y lo nombramos <code>Pivot</code>. Enseguida nos dirigimos al Sistema de archivos y tras haber desplegado la carpeta <code>assets/art</code>, arrastramos el archivo <code>player.glb</code> para soltarlo en este último nodo. Se debería crear otro <code>Node3D</code> como hijo de <code>Pivot</code>. Le cambiamos el nombre a <code>Character</code>. Cabe mencionar que los archivos con extensión <em>.glb</em> son generados en Blender y exportados a ese formato.</p>
+<p>Observando nuestro árbol de nodos, podemos ver que <code>Player</code> no tiene una forma de colisión. Lo arreglamos agregéndole un nodo hijo <code>CollisionShape3D</code> con forma de esfera. La modificamos de manera que se ajuste lo mejor posible a nuestro modelo.</p>
+</section>
+<section id="creando-el-mapeado-de-entradas" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="creando-el-mapeado-de-entradas"><span class="header-section-number">4.2.2</span> Creando el mapeado de entradas</h3>
+<p>Crearemos las cuatro entradas correspondientes a las direcciones y la acción de saltar. Dejamos la elección al criterio y comodidad al lector. Pero el estándar dicta que se utilicen las teclas direccionales y el arreglo WASD, además de lo usual en un control (cruceta o palanca izquierda) para direcciones; tecla <kbd title="Espacio" aria-hidden="true">Espacio</kbd><span class="visually-hidden">Espacio</span> y botón <strong>A</strong> en control para salto.</p>
+</section>
+<section id="programando-al-jugador" class="level3" data-number="4.2.3">
+<h3 data-number="4.2.3" class="anchored" data-anchor-id="programando-al-jugador"><span class="header-section-number">4.2.3</span> Programando al jugador</h3>
+<p>Creamos un script para el nodo <code>Player</code> y lo guardamos en una carpeta nueva que nombraremos <code>scripts/</code>. Podemos escoger con plantilla o sin ella, no importa, ya que crearemos nuestro propio código.</p>
+<p>Supongamos que elegimos una plantilla vacía, así que declaramos una variable que se refiera a la rapidez de movimiento, la gravedad y la velocidad del jugador.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">extends</span> CharacterBody3D</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># qué tan rápido se mueve el jugador en m/s</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>@export <span class="kw">var</span> speed <span class="op">=</span> <span class="dv">14</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># aceleración de caida en m/s2</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>@export <span class="kw">var</span> fall_acceleration <span class="op">=</span> <span class="dv">75</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> target_velocity <span class="op">=</span> Vector3.ZERO</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La última variable es un vector que representa el movimiento y que combina una velocidad con una dirección. En un juego 3D debemos ser más cuidadosos con las medidas, ya que estas son más cercanas a las de la vida real que en un juego en dos dimensiones.</p>
+<p>Ahora programaremos el movimiento, considerando el vector de dirección de entrada mediante el objeto <code>Input</code> dentro de la función <code>_physics_process()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="bu">_physics_process</span>(delta: float):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># creamos una variable local para almacenar la dirección de entrada</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">var</span> direction <span class="op">=</span> Vector3.ZERO</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># checamos cada entrada y actualizamos la dirección acorde</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"move_left"</span>):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        direction.x <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"move_right"</span>):</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        direction.x <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"move_forward"</span>):</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># en 3D, el suelo se representa con el plano XZ</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        direction.z <span class="op">-=</span> <span class="dv">1</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> Input.<span class="fu">is_action_pressed</span>(<span class="st">"move_back"</span>):</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        direction.z <span class="op">+=</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Usamos esta función en lugar de <code>_process()</code> ya que lo que estaremos verificando es el comportamiento de un cuerpo sometido a las físicas del motor.</p>
+<p>Cabe recordar que debemos normalizar las entradas, esto para evitar que el jugador se mueva más rápido en diagonal. También debemos pensar en calcular la dirección en la que mira <code>Pivot</code>. Lo anterior lo conseguimos agregando las siguientes líneas dentro de <code>_physics_process</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> direction <span class="op">!=</span> Vector3.ZERO:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        direction <span class="op">=</span> direction.<span class="fu">normalized</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># configurando la propiedad Basis que afecta la rotación</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">$Pivot</span>.basis <span class="op">=</span> Basis.<span class="fu">looking_at</span>(direction)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

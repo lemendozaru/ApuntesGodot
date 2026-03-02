@@ -163,6 +163,39 @@
     ]
   },
   {
+    "objectID": "primer3D.html",
+    "href": "primer3D.html",
+    "title": "4  Primer juego en 3D",
+    "section": "",
+    "text": "4.1 Configurando el área de juego\nCrearemos ahora un juego sencillo en tres dimensiones, el cual nos permitirá consolidar lo aprendido en el juego anterior y obtener nuevas habilidades. Programaremos una tercera dimensión, no solamente en lo visual con su respectivo HUD, sino mecánicamente, ya que introduciremos el salto como tal. También abordaremos colisiones y capas físicas.\nSeguimos con la convicción de que las capturas de pantalla no serán necesarias, siempre y cuando se trabaje con el motor y nos ensuciemos las manos directa y personalmente.\nEste juego será una evolución del anterior, con la salvedad de que ahora sí podremos eliminar a nuestros enemigos al aplastarlos tras haber saltado sobre ellos.",
+    "crumbs": [
+      "Introducción",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Primer juego en 3D</span>"
+    ]
+  },
+  {
+    "objectID": "primer3D.html#configurando-el-área-de-juego",
+    "href": "primer3D.html#configurando-el-área-de-juego",
+    "title": "4  Primer juego en 3D",
+    "section": "",
+    "text": "4.1.1 Importando assets\nComenzaremos mencionando que es necesario tener el programa Blender instalado en nuestro equipo, ya que la importación de modelos 3D así lo requieren. Así que instalemos dicho software y después regresamos acá.\nContinuamos importando los assets que están colgados en la plataforma del curso. El propio Godot nos preguntará sobre Blender y en caso de estar instalado y reconocido, nos lo dirá también. No olvidemos crear una carpeta llamada assets, que es donde llevaremos nuestros elementos al importarlos.\n\n\n4.1.2 Creando el piso\nSiguiente paso, crear nuestra escena principal con un Node al cual llamaremos Main. Guardamos la escena con su respectivo nombre. Necesitamos un piso para que nuestro jugador no se caiga (y tampoco sus enemigos), por lo que agregaremos un nodo StaticBody3D, el cual es perfecto para paredes, techos o pisos. Pero por sí solo no será muy útil, necesitamos su CollisionShape3D. Agregamos el primer nodo como hijo de Main y el segundo como su “nieto”. Cambiaremos el nombre de StaticBody3D a Ground.\nVolteemos hacia CollisionShape3D, ya que necesita tener una forma. En el inspector se la damos como BoxShape3D. En el viewport veremos que ahora aparece un cubo en el centro. Vamos a darle dimensiones más de “piso plano” a este elemento. Para ello, damos clic en la palabra BoxShape3D para desplegarla y cambiamos sus dimensiones: Size X a 60, Size Y a 2 y Size Z a 60. Podemos disminuir el zoom en el viewport para ver mejor el tamaño y forma de nuestro piso plano.\nSin embargo, al ejecutar la escena no veremos nuestro piso, ya que es solo la caja de colisión. Si deseamos verlo, debemos agregar un nodo MeshInstance3D como hijo de Ground. En su propiedad Mesh debemos escogerle una: será BoxMesh. Ya elegido, toca darle clic al icono de cubo para desplegarlo y cambiar sus dimensiones para que coincidan con la caja de colisión.\nEl siguiente paso es mover Ground un poco hacia abajo, una unidad, siendo específicos. Lo logramos seleccionando dicho nodo y en su propiedad Transform -&gt; Position Y cambiarla a -1.\n\n\n4.1.3 Agregando luces\nSeleccionamos Main y le agregamos como hijo un nodo DirectionalLight3D. Acto seguido, lo moveremos hacia arriba arrastrando la flecha verde y lo rotaremos sobre el eje \\(x\\) (sobre el arco rojo) hasta conseguir que el suelo quede iluminado por completo. En el inspector, sección Light3D activamos la propiedad Shadow.",
+    "crumbs": [
+      "Introducción",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Primer juego en 3D</span>"
+    ]
+  },
+  {
+    "objectID": "primer3D.html#creando-al-jugador",
+    "href": "primer3D.html#creando-al-jugador",
+    "title": "4  Primer juego en 3D",
+    "section": "4.2 Creando al jugador",
+    "text": "4.2 Creando al jugador\n\n4.2.1 Configurando lo visual\nCreamos una escena nueva y seleccionamos un nodo CharacterBody3D como raíz, para luego renombrarlo Player. Este tipo de nodo es similar al RigidBody2D que usamos como enemigo en el juego pasado en cuanto a que puede interactuar con el entorno, pero es diferente en tanto que no es controlado por las físicas del motor, sino por nosotros mismos.\nAgregamos como hijo de Player un nodo Node3D y lo nombramos Pivot. Enseguida nos dirigimos al Sistema de archivos y tras haber desplegado la carpeta assets/art, arrastramos el archivo player.glb para soltarlo en este último nodo. Se debería crear otro Node3D como hijo de Pivot. Le cambiamos el nombre a Character. Cabe mencionar que los archivos con extensión .glb son generados en Blender y exportados a ese formato.\nObservando nuestro árbol de nodos, podemos ver que Player no tiene una forma de colisión. Lo arreglamos agregéndole un nodo hijo CollisionShape3D con forma de esfera. La modificamos de manera que se ajuste lo mejor posible a nuestro modelo.\n\n\n4.2.2 Creando el mapeado de entradas\nCrearemos las cuatro entradas correspondientes a las direcciones y la acción de saltar. Dejamos la elección al criterio y comodidad al lector. Pero el estándar dicta que se utilicen las teclas direccionales y el arreglo WASD, además de lo usual en un control (cruceta o palanca izquierda) para direcciones; tecla EspacioEspacio y botón A en control para salto.\n\n\n4.2.3 Programando al jugador\nCreamos un script para el nodo Player y lo guardamos en una carpeta nueva que nombraremos scripts/. Podemos escoger con plantilla o sin ella, no importa, ya que crearemos nuestro propio código.\nSupongamos que elegimos una plantilla vacía, así que declaramos una variable que se refiera a la rapidez de movimiento, la gravedad y la velocidad del jugador.\nextends CharacterBody3D\n\n# qué tan rápido se mueve el jugador en m/s\n@export var speed = 14\n\n# aceleración de caida en m/s2\n@export var fall_acceleration = 75\n\nvar target_velocity = Vector3.ZERO\nLa última variable es un vector que representa el movimiento y que combina una velocidad con una dirección. En un juego 3D debemos ser más cuidadosos con las medidas, ya que estas son más cercanas a las de la vida real que en un juego en dos dimensiones.\nAhora programaremos el movimiento, considerando el vector de dirección de entrada mediante el objeto Input dentro de la función _physics_process():\nfunc _physics_process(delta: float):\n    # creamos una variable local para almacenar la dirección de entrada\n    var direction = Vector3.ZERO\n\n    # checamos cada entrada y actualizamos la dirección acorde\n    if Input.is_action_pressed(\"move_left\"):\n        direction.x -= 1\n    if Input.is_action_pressed(\"move_right\"):\n        direction.x += 1\n    if Input.is_action_pressed(\"move_forward\"):\n        # en 3D, el suelo se representa con el plano XZ\n        direction.z -= 1\n    if Input.is_action_pressed(\"move_back\"):\n        direction.z += 1\nUsamos esta función en lugar de _process() ya que lo que estaremos verificando es el comportamiento de un cuerpo sometido a las físicas del motor.\nCabe recordar que debemos normalizar las entradas, esto para evitar que el jugador se mueva más rápido en diagonal. También debemos pensar en calcular la dirección en la que mira Pivot. Lo anterior lo conseguimos agregando las siguientes líneas dentro de _physics_process:\nif direction != Vector3.ZERO:\n        direction = direction.normalized()\n        # configurando la propiedad Basis que afecta la rotación\n        $Pivot.basis = Basis.looking_at(direction)",
+    "crumbs": [
+      "Introducción",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Primer juego en 3D</span>"
+    ]
+  },
+  {
     "objectID": "summary.html",
     "href": "summary.html",
     "title": "7  Summary",
