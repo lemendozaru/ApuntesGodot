@@ -29,6 +29,10 @@ format:
     toc-title: Contenido
   pdf:
     documentclass: scrreprt
+  epub:
+    toc: true
+    toc-title: Contenido
+    html-math-method: mathml
 
 
 
