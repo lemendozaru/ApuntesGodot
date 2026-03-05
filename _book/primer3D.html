@@ -440,6 +440,7 @@ window.Quarto = {
   <li><a href="#configurando-lo-visual" id="toc-configurando-lo-visual" class="nav-link" data-scroll-target="#configurando-lo-visual"><span class="header-section-number">4.2.1</span> Configurando lo visual</a></li>
   <li><a href="#creando-el-mapeado-de-entradas" id="toc-creando-el-mapeado-de-entradas" class="nav-link" data-scroll-target="#creando-el-mapeado-de-entradas"><span class="header-section-number">4.2.2</span> Creando el mapeado de entradas</a></li>
   <li><a href="#programando-al-jugador" id="toc-programando-al-jugador" class="nav-link" data-scroll-target="#programando-al-jugador"><span class="header-section-number">4.2.3</span> Programando al jugador</a></li>
+  <li><a href="#probando-al-jugador" id="toc-probando-al-jugador" class="nav-link" data-scroll-target="#probando-al-jugador"><span class="header-section-number">4.2.4</span> Probando al jugador</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -536,6 +537,27 @@ window.Quarto = {
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>        direction <span class="op">=</span> direction.<span class="fu">normalized</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># configurando la propiedad Basis que afecta la rotación</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">$Pivot</span>.basis <span class="op">=</span> Basis.<span class="fu">looking_at</span>(direction)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Toca actualizar el vector velocidad, considerando que debemos calcular la velocidad en el suelo y la velocidad de caída en forma independiente. Escribimos las siguientes líneas fuera de la condicional, pero aún dentro de la función <code>_physics_process()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode gdscript code-with-copy"><code class="sourceCode gdscript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># vector velocidad en suelo</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    target_velocity.x <span class="op">=</span> direction.x <span class="op">*</span> speed</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    target_velocity.z <span class="op">=</span> direction.z <span class="op">*</span> speed</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># velocidad de caída</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="fu">is_on_floor</span>(): <span class="co"># Si está en el aire, caerá hacia el suelo</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        target_velocity.y <span class="op">=</span> target_velocity.y <span class="op">-</span> (fall_acceleration <span class="op">*</span> delta)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Moviendo al jugador</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    velocity <span class="op">=</span> target_velocity</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">move_and_slide</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>La función <code>is_on_floor</code> devuelve <code>true</code> si el caracter colisiona con el suelo en cada frame. Esto nos permite aplicar la velocidad de caída solo cuando este se encuentra en el aire. El motor de físicas solo detecta interacciones con suelo, paredes y otros cuerpos durante un frame si hay movimiento o colisiones.</p>
+<p>Por último, el método <code>move_and_slide()</code> que pertenece a los nodos del tipo <code>CharacterBody</code> permite mover al cuerpo suavemente. Si en un momento dado el personaje choca con algo, el motor tratará de darle un movimiento de deslizamiento automáticamente.</p>
+</section>
+<section id="probando-al-jugador" class="level3" data-number="4.2.4">
+<h3 data-number="4.2.4" class="anchored" data-anchor-id="probando-al-jugador"><span class="header-section-number">4.2.4</span> Probando al jugador</h3>
+<p>Instanciaremos el jugador a la escena <code>Main</code>, pero debemos considerar que en los juegos 3D debe haber una cámara agregada por nosotros al viewport, ya que no se verá nada en caso de que no lo hagamos.</p>
+<p>Después de instanciar <code>player.tscn</code> a <code>Main</code>, seleccionamos este último nodo y agregamos como hijo un nodo <code>Marker3D</code> y le renombramos <code>CameraPivot</code>. Con este seleccionado, le agregamos como hijo un nodo <code>Camera3D</code>.</p>
+<p>Podremos notar que si seleccionamos el nodo <code>Camera3D</code> en el árbol, aparecerá en el viewport un checkbox de Vista Previa. Si lo habilitamos, nos mostrará lo que ve la cámara recién agregada. Esto resulta útil para poder configurar el pivote de la cámara que agregamos, pero en una sola vista puede no ser muy práctico. Así que vayamos al botón <em>Ver</em> en el viewport y seleccionamos <em>2 viewports</em>. En uno dejamos la vista perspectiva y en el otro habilitamos la vista de cámara.</p>
+<p>Seleccionamos la <code>Camera3D</code> y la movemos unos <span class="math inline">\(20\)</span> m a lo largo del eje <span class="math inline">\(z\)</span> (la flecha azul). Enseguida, seleccionamos <code>CameraPivot</code> y lo rotamos <span class="math inline">\(45\)</span>° en el eje <span class="math inline">\(x\)</span>. Debería de verse mucho mejor nuestra vista de cámara. Si no nos convence, juguemos con las distancias y los ángulos hasta que encontremos una vista que nos guste.</p>
 
 
 </section>

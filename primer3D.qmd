@@ -115,7 +115,7 @@ Por último, el método `move_and_slide()` que pertenece a los nodos del tipo `C
 
 ### Probando al jugador
 
-Instanciaremos el jugador a la escena `Main`, pero debemos considerar que en los juegos 3D debe haber una cámara agregado por nosotros al viewport, ya que no se verá nada en caso de que no lo hagamos.
+Instanciaremos el jugador a la escena `Main`, pero debemos considerar que en los juegos 3D debe haber una cámara agregada por nosotros al viewport, ya que no se verá nada en caso de que no lo hagamos.
 
 Después de instanciar `player.tscn` a `Main`, seleccionamos este último nodo y agregamos como hijo un nodo `Marker3D` y le renombramos `CameraPivot`. Con este seleccionado, le agregamos como hijo un nodo `Camera3D`.
 
