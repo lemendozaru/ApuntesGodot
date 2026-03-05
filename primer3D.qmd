@@ -123,6 +123,10 @@ Podremos notar que si seleccionamos el nodo `Camera3D` en el árbol, aparecerá 
 
 Seleccionamos la `Camera3D` y la movemos unos $20$ m a lo largo del eje $z$ (la flecha azul). Enseguida, seleccionamos `CameraPivot` y lo rotamos $45$° en el eje $x$. Debería de verse mucho mejor nuestra vista de cámara. Si no nos convence, juguemos con las distancias y los ángulos hasta que encontremos una vista que nos guste.
 
+Podemos probar el juego tras correrlo. Hemos de notar que el personaje se cae por las orillas (lo que significa que están trabajando las físicas) y que existen huecos en la vista. Vamos a ir arreglando esas cosas, en especial lo de la vista, ya que aunque sí está en tres dimensiones, estas no ayudan al jugador a calcular bien las distancias, por lo que debemos cambiar la perspectiva a una vista ortogonal.
 
+Seleccionamos la cámara y en el inspector cambiamos la propiedad *Proyection* a `Orthogonal` y *Size* a $20$ (o la distancia que hayamos puesto antes). Probemos de nuevo: sigue estando en tres dimensiones pero resulta más preciso el gameplay.
+
+Quizá notemos las sombras algo extrañas o "borrosas". Si ese es el caso, podemos jugar con la propiedad *Far*, que nos permite configurarlas. No se recomienda utilizar valores menores a $100$, pero para este juego, ese valor parece comportarse bastante bien.
 
 
