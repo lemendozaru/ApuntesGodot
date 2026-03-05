@@ -129,4 +129,117 @@ Seleccionamos la cámara y en el inspector cambiamos la propiedad *Proyection* a
 
 Quizá notemos las sombras algo extrañas o "borrosas". Si ese es el caso, podemos jugar con la propiedad *Far*, que nos permite configurarlas. No se recomienda utilizar valores menores a $100$, pero para este juego, ese valor parece comportarse bastante bien.
 
+## Creando a los enemigos
+
+Creamos una escena nueva con un nodo raíz `CharacterBody3D` que renombramos como `Mob`. Le agregaremos un nodo `Node3D` como hijo y le ponemos `Pivot`. Ahora, desde el Sistema de archivos arrastramos `mob.glb` a `Pivot` y ya tendremos su modelo en escena. Le cambiamos el nombre al nuevo nodo para que quede como `Character`.
+
+Ahora toca agregarla una forma de colisión a `Mob`. Recordemos, primero agregamos `CollisionShape3D` como hijo de `Mob` y luego en el inspector le asignamos una *BoxShape3D*. La ajustamos lo mejor posible, haciendo uso de los manejadores. No olvidemos que la caja debe ser ligeramente más pequeña que el modelo 3D, para que así no afecte al jugador "a distancia". Sin embargo, mediante prueba y error podemos seleccionar un tamaño adecuado para la misma.
+
+### Eliminar enemigos fuera de pantalla
+
+Los enemigos aparecerán en pantalla de manera aleatoria, pero deseamos que al salir de la pantalla simplemente desaparezcan, ya que no deseamos sobrecargar la memoria del juego. Para ello utilizaremos el nodo `VisibleOnScreenNotifier3D`, el cual nos ahorra el tener que aplicar el *pooling*, que es una técnica utilizada en lenguajes más generales como C# o Lua. Godot ya tiene esto resuelto.
+
+Seleccionamos `Mob` y le agregamos dicho nodo como hijo. Veremos que aparece un cubo rosa, al cual le podemos cambiar el tamaño, considerando que el objeto desaparece cuando la totalidad de este sale de pantalla.
+
+### Programando al enemigo
+
+Adjuntemos un script a `Mob`. Usaremos una plantilla vacía e iremos agregando el siguiente código:
+
+```gdscript
+extends CharacterBody3D
+
+# velocidad mínima del enemigo en m/s
+@export var min_speed = 10
+# velocidad máxima del enemigo en m/s
+@export var max_speed = 18
+
+
+func _physics_process(_delta):
+	# agregamos el guón bajo para evitar advertencias con delta
+	move_and_slide()
+```
+
+Usaremos velocidades mínima y máxima para aleatorizar la velocidad de cada enemigo a la vez que movemos y deslizamos al enemigo cada frame.
+
+Enseguida crearemos una función que nos permita calcular el vector de movimiento del enemigo, considerando que aparecerá en una posición aleatoria en pantalla y deberá voltear hacia el jugador, dirigiéndose hacia este pero con cierto margen (no queremos que el enemigo persiga de manera perfecta al jugador, sería un juego bastante difícil).
+
+```gdscript
+# Esta función será llamada desde la escena Main
+func initialize(start_position, player_position):
+	# Colocamos el enemigo en su posición inicial
+	# y lo rotamos hacia el jugador
+	look_at_from_position(start_position, player_position, Vector3.UP)
+	# Rota al enemigo aleatoriamente en un rango de -45 a +45°
+	# para no irse directamente hacia el jugador
+	rotate_y(randf_range(-PI / 4, PI / 4))
+```
+
+Ya que colocamos y orientamos al enemigo, ahora debemos agregarle una velocidad aleatoria. Para ello usamos las variables definidas al inicio. Luego haremos que el enemigo se mueva en la dirección a la que está viendo.
+
+```gdscript
+# Calculamos una velocidad random
+	var random_speed = randi_range(min_speed, max_speed)
+	# Calculamos la velocidad del enemigo
+	velocity = Vector3.FORWARD * random_speed
+	# Rotamos el vector de velocidad de acuerdo al enemigo
+	# para que se mueva hacia donde está girado
+	velocity = velocity.rotated(Vector3.UP, rotation.y)
+
+```
+
+Ahora toca eliminar los enemigos que salgan de pantalla. Seleccionamos el nodo `VisibleOnScreenNotifier3D` y en el panel *Señales* damos clic en `screen_exited()` y conectamos a `Mob`. En la función que esto genera escribiremos la línea `queue_free()`.
+
+## Agregando los enemigos
+
+No hemos configurado el tamaño de pantalla. Haremos eso antes de cualquier cosa. Nos vamos a *Proyecto -> configuración del proyecto -> General -> Ventana* y cambiamos las medidas a $720$ de ancho por $540$ de alto.
+
+### Crear la ruta de generación
+
+Una limitación de Godot es que para generar la ruta de generación necesitamos agregar elementos temporales o *dummys* que nos permitan ver fuera de la cámara. Para ello usaremos unos cilindros auxiliares. Seleccionamos `Main` y le agregamos un `Node3D`, que llamaremos `Cylinders`. A este último le agregamos como hijo otro nodo `MeshInstance3D`. En su propiedad *Mesh* le asignamos una `CylinderMesh` y aparecerá, propiamente dicho, un cilindro.
+
+Notaremos que este cilindro es algo difícil de ver por su color. Toca cambiarlo yendo al inspector y dando clic en el icono de cilindro. Esto desplegará varias propiedades, pero la que nos importa es *Material*. Damos clic ahí y luego en *StandardMaterial3D*. Volvemos a clicar en la esfera y desplegamos el apartado *Albedo*. Ahora cambiamos su propiedad *Color* a uno que sea fácil de distinguir. Damos {{<kbd Enter>}}.
+
+Ahora necesitamos mover el cilindro justo fuera de la cámara, en la esquina superior izquierda. Podemos apoyarnos en la rejilla como visual, pero sí se sugiere que trabajemos con ajuste inteligente (el icono del imán que se encuentra sobre el viewport). También deberíamos cambiar la perspectiva a *Superior*, dando clic en el el eje $y$ del gizmo que está arriba a la derecha en el viewport.
+
+Con el cilindro debidamente colocado, lo duplicamos dando clic derecho y luego en *Duplicar* o utilizando {{<kbd Ctrl+D>}}. Al cilindro nuevo lo llevaremos a la esquina superior derecha siguiendo el mismo criterio.
+
+Ya que esté el segundo cilindro bien ubicado, toca duplicar ambos, para ya tener 4 de ellos. Seleccionamos ambos y los duplicamos. Ahora los posicionamos en las esquinas inferiores.
+
+Agregaremos un nodo `Path3D` como hijo de `Main`, le llamamos `SpawnPath` y veremos que aparecen algunos botones nuevos sobre el viewport. Damos clic en el que se llama *Agregar Punto* y damos clic en el centro de cada cilindro para crear su correspondiente punto. Al finalizar, le picamos al botón *Cerrar curva*.
+
+Ahora agregamos como hijo del último nodo creado otro llamado `PathFollow3D` y le llamamos `SpawnLocation`.
+
+### Apareciendo los enemigos
+
+Le agregaremos un script a `Main`. Dentro del mismo agregamos la siguiente línea justo debajo de `extends Node`
+
+```gdscript
+@export var mob_scene: PackedScene
+```
+
+Y en el inspector cargamos la escena `mob.tscn`. Después, agregamos como hijo a `Main` un nodo `Timer` que llamaremos `MobTimer`. En el inspector cambiamos su *Wait Time* a `0.5` y activamos su propiedad *Autostart*. Luego nos vamos a *Señales* y damos doble clic en `time_out()` para conectarla a `Main`.
+
+Vamos a programar la generación de enemigos mediante la instanciación de la escena enemigo, el muestreo de una posición aleatoria en la ruta de generación, obtener la posición del jugador, inicializando al enemigo, pasándole la posición aleatoria y la posición del jugador y agregando el enemigo como hijo del nodo `Main`.
+
+```gdscript
+func _on_mob_timer_timeout():
+	# creamos una nueva instancia de la escena Mob
+	var mob = mob_scene.instantiate()
+
+	# Elegimos un lugar aleatorio dentro de SpawnPath
+	# Almacenamos la referencia de SpawnLocation
+	var mob_spawn_location = get_node("SpawnPath/SpawnLocation")
+	# y le damos un espaciado aleatorio
+	mob_spawn_location.progress_ratio = randf()
+
+	var player_position = $Player.position
+	mob.initialize(mob_spawn_location.position, player_position)
+
+	# aparecemos al mob por agregarlo a la escena principal
+	add_child(mob)
+```
+
+la función `randf()` produce números al azar entre 0 y 1, esto es lo que `progress_ratio` del nodo `PathFollow` espera: 0 es el inicio de la ruta, 1 es el fin de la ruta. La ruta que hemos creado está alrededor del viewport de la cámara, así que cualquier valor al azar entre 0 y 1 será una posición al azar a lo largo del borde del viewport.
+
+Probemos la escena, no debería haber errores lógicos, pero sí en cuanto a jugabilidad ya que el juego naturalmente está inconcluso.
 
