@@ -93,6 +93,36 @@ if direction != Vector3.ZERO:
 		$Pivot.basis = Basis.looking_at(direction)
 ```
 
+Toca actualizar el vector velocidad, considerando que debemos calcular la velocidad en el suelo y la velocidad de caída en forma independiente. Escribimos las siguientes líneas fuera de la condicional, pero aún dentro de la función `_physics_process()`:
+
+```gdscript
+# vector velocidad en suelo
+	target_velocity.x = direction.x * speed
+	target_velocity.z = direction.z * speed
+
+	# velocidad de caída
+	if not is_on_floor(): # Si está en el aire, caerá hacia el suelo
+		target_velocity.y = target_velocity.y - (fall_acceleration * delta)
+
+	# Moviendo al jugador
+	velocity = target_velocity
+	move_and_slide()
+```
+
+La función `is_on_floor` devuelve `true` si el caracter colisiona con el suelo en cada frame. Esto nos permite aplicar la velocidad de caída solo cuando este se encuentra en el aire. El motor de físicas solo detecta interacciones con suelo, paredes y otros cuerpos durante un frame si hay movimiento o colisiones.
+
+Por último, el método `move_and_slide()` que pertenece a los nodos del tipo `CharacterBody` permite mover al cuerpo suavemente. Si en un momento dado el personaje choca con algo, el motor tratará de darle un movimiento de deslizamiento automáticamente.
+
+### Probando al jugador
+
+Instanciaremos el jugador a la escena `Main`, pero debemos considerar que en los juegos 3D debe haber una cámara agregado por nosotros al viewport, ya que no se verá nada en caso de que no lo hagamos.
+
+Después de instanciar `player.tscn` a `Main`, seleccionamos este último nodo y agregamos como hijo un nodo `Marker3D` y le renombramos `CameraPivot`. Con este seleccionado, le agregamos como hijo un nodo `Camera3D`.
+
+Podremos notar que si seleccionamos el nodo `Camera3D` en el árbol, aparecerá en el viewport un checkbox de Vista Previa. Si lo habilitamos, nos mostrará lo que ve la cámara recién agregada. Esto resulta útil para poder configurar el pivote de la cámara que agregamos, pero en una sola vista puede no ser muy práctico. Así que vayamos al botón *Ver* en el viewport y seleccionamos *2 viewports*. En uno dejamos la vista perspectiva y en el otro habilitamos la vista de cámara.
+
+Seleccionamos la `Camera3D` y la movemos unos $20$ m a lo largo del eje $z$ (la flecha azul). Enseguida, seleccionamos `CameraPivot` y lo rotamos $45$° en el eje $x$. Debería de verse mucho mejor nuestra vista de cámara. Si no nos convence, juguemos con las distancias y los ángulos hasta que encontremos una vista que nos guste.
+
 
 
 
