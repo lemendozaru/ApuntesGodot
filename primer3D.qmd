@@ -243,3 +243,158 @@ la función `randf()` produce números al azar entre 0 y 1, esto es lo que `prog
 
 Probemos la escena, no debería haber errores lógicos, pero sí en cuanto a jugabilidad ya que el juego naturalmente está inconcluso.
 
+## Implementando las mecánicas
+
+Agregaremos la capacidad de saltar y aplastar a los enemigos, pero para ello necesitamos introducirnos a las **capas físicas**.
+
+### Capas y máscaras
+
+Los cuerpos físicos cuentan con dos propiedades relacionadas con las físicas: las capas y las máscaras. Las capas definen el lugar físico al que pertenece un cuerpo, mientras las máscaras definen cuáles capas podrán ser detectadas por estos mismos cuerpos. Esto nos permite filtrar interacciones de físicas, controlar rendimiento y ahorrar incluso hasta código.
+
+Las capas y máscaras se identifican por números. Por defecto, todos los cuerpos físicos y áreas están configurados a capa y máscara `1`, por lo que siempre colisionarán entre ellos.
+
+Es posible darle nombre a las capas para identificarlas mejor.
+
+#### Cambiar el nombre a las capas
+
+Nos dirigimos a *Proyecto -> Configuración del Proyecto -> General* y buscamos el apartado *Nombres de capas -> Físicas 3D*. Ahí están enlistadas las distintas capas con un campo al lado derecho. Allí podemos asignarles un nombre. Nombremos las primeras tres como *player*, *enemies* y *world*, respectivamente.
+
+#### Asignando capas y máscaras
+
+Nos dirigimos a `main.tscn` y seleccionamos `Ground`. Desplegamos la sección *Collision* del inspector y en *Layer* marcamos la tercera (*world*) y desmarcamos la primera (*player*), ya que el suelo pertenece al lugar físico "mundo". En cuanto a *Mask*, recordemos que esta propiedad permite "escuchar" otras capas, pero el suelo no necesita escuchar algo, así que desmarcamos la primera.
+
+En la escena `player.tscn` seleccionamos el nodo `Player` y en *Capas* lo dejamos en el `1` (el jugador pertenece al lugar físico "jugadores"), pero en *Mask*  desactivamos la primera pero activaremos tanto la segunda como la tercera, ya que sí necesitamos "interactuar" con los enemigos y el mundo.
+
+Para terminar, seleccionamos el nodo `Mob` de `mob.tscn` y repetimos el proceso, pero solo activando la capa `2` y desactivando las máscaras. Esto se debe a que los enemigos sí pertenecen al lugar "enemigos", obviamente, pero no queremos que interactúen entre ellos (que no choquen entre sí) y tampoco tienen gravedad asignada, por lo que en realidad tampoco chocan con el suelo por defecto.
+
+### Agregando el salto
+
+Abrimos `player.gd` y justo después de la línea de la variable `fall_acceleration` agregamos una nueva variable:
+
+```gdscript
+@export var jump_impulse = 20
+```
+
+Ahora, dentro de `func _physics_process()`, justo antes de `move_and_slide()` agregamos las líneas:
+
+```gdscript
+# Saltar solo si el jugador está en el suelo y se presiona "jump"
+if is_on_floor() and Input.is_action_just_pressed("jump"):
+	target_velocity.y = jump_impulse
+```
+
+Tengamos en cuenta que el eje $y$ en 3D es positivo hacia arriba, contrario al entorno 2D.
+
+### Aplastando al enemigo
+
+Como parte de la lógica del juego, necesitamos saltar encima de un enemigo y ser capaces de distinguir que fue así y no sobre el suelo. Para ello crearemos un grupo que englobe a los enemigos. Con `Mob` seleccionado en la escena `mob.tscn`, nos vamos al panel *Grupos* y creamos uno nuevo al cual llamaremos *mobs*.
+
+#### Programando el aplastamiento
+
+En `player.gd` agregaremos otra variable
+
+```gdscript
+# Impulso vertical aplicado al caracter tras aplastar un enemigo (m/s)
+@export var bounce_impulse = 16
+```
+
+Ahora un poco de teoría. Cuando utilizamos la función `move_and_slide()` el motor aplica movimiento al caracter para irlo "deslizando" y así obtener animaciones más suaves. Si bien esto ahorra cierto trabajo, implica que al caer sobre un enemigo se estarán mandando múltiples señales de colisión. Necesitamos detectar que el jugador ha saltado sobre un enemigo, luego eliminarlo, hacer que rebotemos y volver a ver si hay colisiones. Si no las hay en un frame, el código no se ejecutará. Agreguemos las siguientes líneas a `_physics_process()`, justo antes de `move_and_slide()`:
+
+```gdscript
+# Iterar a través de todas las colisiones por frame
+	for index in range(get_slide_collision_count()):
+		# Tomamos una de las colisiones con el caracter
+		var collision = get_slide_collision(index)
+
+		# Si hay colisiones duplicadas con un enemigo en un frame único
+		# el enemigo será borrado después de la primera y una segunda llamada
+		# a get_collider retornará null, llevando a un apuntador nulo al llamar
+		# collision.get_collider().is_in_group("mob")
+
+		# Este bloque previene el procesar colisiones duplicadas
+		if collision.get_collider() == null:
+			continue
+
+		# Si el collider es con un enemigo
+		if collision.get_collider().is_in_group("mob"):
+			var mob = collision.get_collider()
+			# verficaremos que lo hemos golpeado desde arriba
+			if Vector3.UP.dot(collision.get_normal()) > 0.1:
+				# Si fue así, lo aplastaremos y rebotaremos
+				mob.squash()
+				target_velocity.y = bounce_impulse
+				# Prevenimos posteriores llamadas duplicadas
+				break
+
+```
+
+La función `get_slide_collision()` devuelve un objeto llamado `KinematicCollision3D` que contiene información sobre dónde y cómo ocurrió la colisión. Así, utilizamos su función `get_collider()` para verificar si hemos chocado con un "mob" o enemigo, llamando a `is_in_group()` en él.
+
+Para verificar que estamos cayendo arriba de un enemigo, usamos el producto punto de vectores: `Vector3.UP.dot(collision.get_normal()) > 0.1`. La normal de colisión es un vector 3D que es perpendicular al plano donde ocurrió la colisión. El producto escalar nos permite compararlo con la dirección hacia arriba.
+
+Con los productos escalares, cuando el resultado es mayor que `0`, los dos vectores están en un ángulo menor a 90 grados. Un valor mayor a `0.1` nos indica que estamos aproximadamente encima del enemigo.
+
+Después de completar la lógica de aplastado y rebote, terminaremos el bucle de manera temprana con la sentencia `break` para prevenir llamadas duplicadas a `mob.squash()`, que de otro modo puede resultar en contar el puntaje muchas veces por cada muerte de enemigo.
+
+Debemos notar que estamos llamando a una función indefinida, `mob.squash()`. Abrimos el script `mob.gd` y en la parte superior del script, definiremos una nueva señal llamada `squashed`.
+
+```gdscript
+# Emitida cuando caemos encima del enemigo
+signal squashed
+```
+
+Y en la parte inferior, agregaremos la función `squash()`, donde emitimos la señal y destruimos el enemigo.
+
+```gdscript
+func squash():
+	squashed.emit()
+	queue_free()
+```
+
+Por si no lo hemos hecho, asignemos `main.tscn` como la escena principal y probemos el juego.
+
+### Eliminando al jugador
+
+Si ya probamos el juego pudimos darnos cuenta que ya eliminamos a los enemigos si saltamos sobre ellos (incluso con tocarlos). Pero deseamos agregar el hecho de que seamos nosotros quienes perdamos si el enemigo hace contacto mientras estemos en el suelo. Un nodo que nos viene muy bien para este caso es el `Area3D`, Lo vamos a agregar como hijo de `Player` en su escena `player.tscn` y le llamaremos `MobDetector`. Luego le agregamos su respectiva `CollisionShape3D` con la forma *CylinderShape3D*.
+
+Aquí cabe mencionar una manera en la que deberíamos configurar el cilindro de colisión: 1. hacerlo más ancho que la esfera del jugador para que así nos pegue el enemigo antes que nosotros a ellos y 2. posicionarlo casi tan alto como al caracter para que los enemigos no lo toquen si estamos saltando.
+
+Con `MobDetector` seleccionado, vamos al inspector y desactivamos la propiedad *Monitoreable* para impedir que otros nodos detecten esta área. La propiedad *Monitoring* le permite al nodo detectar, así que la dejamos activada. Desactivaremos las capas de colisión y la máscara *player*, pero activamos la máscara *enemies*, que son los únicos elementos con los que nos interesa interactuar.
+
+Seguimos con `MobDetector` seleccionado y en sus señales damos doble clic en `body_entered()` para conectar dicha señal a `Player`. Esta señal solo será emitida si entra un enemigo, gracias a la máscara seleccionada (*enemies*).
+
+Es momento de agregar las últimas líneas de código. Primero, para emitir una señal ponemos en la parte superior de `player.gd`:
+
+```gdscript
+# Emitida cuando el jugador es golpeado por el enemigo
+signal hit
+```
+
+Para destruir al jugador, justo después de `move_and_slide()`
+
+```gdscript
+func die():
+	hit.emit()
+	queue_free()
+```
+
+Y dentro de la función `_on_mob_detector_body_entered()` simplemente:
+
+```gdscript
+die()
+```
+
+### Finalizando el juego
+
+Abrimos `main.tscn`, seleccionamos `Player` y en sus señales conectaremos `hit()` al nodo `Main`. En la función que se crea agregamos la línea
+
+```gdscript
+$MobTimer.stop()
+```
+
+## Toques finales
+
+
+
+
+
