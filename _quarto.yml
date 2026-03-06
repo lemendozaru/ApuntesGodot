@@ -12,6 +12,7 @@ book:
         - conceptosclave.qmd
         - primer2D.qmd
         - primer3D.qmd
+        - primerMovil.qmd
     - part: "Plataformas"
       chapters:
         - 2D.qmd

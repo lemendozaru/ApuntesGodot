@@ -412,6 +412,17 @@ Agregaremos un script al nodo `ScoreLabel` y agregaremos justo después del `ext
 var score = 0
 ```
 
+La puntuación debe aumentar en `1` cada vez que aplastemos un enemigo. Ya que instanciamos los enemigos mediante código, también realizaremos la conexión a su señal de la misma manera.
+
+Abrimos `main.gd` y escribimos en la parte inferior de la función `_on_mob_timer_timeout()`:
+
+```gdscript
+# Conectamos el mob a la etiqueta de puntaje para actualizarla
+	mob.squashed.connect($UserInterface/ScoreLabel._on_mob_squashed.bind())
+```
+
+Estas líneas permiten que el nodo `ScoreLabel` intercepte la señal `squashed` de los enemigos y llame a la función `_on_mob_squashed`.
+
 
 
 

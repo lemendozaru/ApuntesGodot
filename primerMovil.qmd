@@ -1,0 +1,41 @@
+# Primer Juego Móvil
+
+Crearemos nuestro primer juego ejecutable en dispositivos móviles (android, siendo específicos), el cual será bastante simple pero completo. Consistirá básicamente en un personaje animado que estará movíendose en pantalla con el fin de recolectar monedas que aparecerán aleatoriamente mientras un contador nos limita el tiempo para realizarlo.
+
+## Configurando el proyecto
+
+Lo primero a realizar es la importación de los elementos gráficos, para ello descargaremos los que se encuentran disponibles en la plataforma del curso, los descomprimimos y, tras haber creado la carpeta `assets/` en el sistema de archivos de Godot, los arrastramos ahí dentro mediante el navegador de archivos de nuestro sistema operativo.
+
+Enseguida nos vamos a la configuración del proyecto y cambiamos el tamaño de pantalla a un ancho de `540` por alto de `960`. Así, la pantalla ya se asemeja más a la del dispositivo objetivo, pero aún no está del todo lista. En la misma ventana en la que estamos buscaremos la sección *Estirar* y en su propiedad *Modo* lo cambiamos a `canvas_items` y *Aspecto* lo dejamos en `keep`. Ahí mismo buscamos la sección *Manipulador* y cambiamos la propiedad *Orientación* a `Sensor Portrait`.
+
+### Configurando la pantalla inicial
+
+Como nodo raíz de nuestra primera escena usaremos un nodo `Control` y le renombramos como `Menu`. Guardamos la escena con el mismo nombre en su respectiva carpeta creada expresamente (`scenes/menu.tscn`) y la volvemos escena principal.
+
+Agregamos como hijo un `Label` y le llamaremos `TitleLabel`. En su propiedad *Text* escribimos el nombre del juego o lo que deseemos y en la sección *Control* apartado *Theme Overrides* cambiaremos la fuente para cargar la que viene en los assets. También pondremos un tamaño adecuado (`64` parece estar bien). En la parte superior del inspector tenemos acceso a la alineación del texto dentro de la etiqueta. Podemos dejarlo como queramos, pero siempre se ve bien una alineación central tanto en lo horizontal como en lo vertical. Le daremos un anclaje a la etiqueta de *Centro Superior*, pero utilizando la propiedad de posición en $y$ la bajaremos un poco para que tenga un pequeño margen con el limite con la pantalla.
+
+Acto seguido, agregaremos un `Button` como hijo de `Menu` y lo renombramos `PlayButton`. En su campo de texto escribimos "Play", por ejemplo y le cargamos la misma fuente que la etiqueta pero con un tamaño ligeramente menor (`60` está bien). En anclaje le seleccionamos un *Centro* pero, utilizando los manejadores, le cambiaremos un poco el tamaño para que haya márgenes con respecto al texto. Si al hacerlo se cambió de posición, volvemos a colocar el anclaje.
+
+Si presionamos {{<kbd F5>}} podremos ver cómo va quedando nuestro juego, aunque vayamos en una etapa muy temprana de desarrollo.
+
+Crearemos otra escena y le agregamos un nodo `Node` al que llamaremos `Main` y la guardamos como aparece por defecto. Volvemos a `Menu` y le agregamos un script vacío y lo guardaremos como `menu.gd`.
+
+seleccionamos `PlayButton` y conectamos su señal `pressed()` a `Menu`. En la función que aparece en `menu.gd` le agregamos la siguiente línea en lugar del `pass`:
+
+```gdscript
+get_tree().change_scene_to_file("res://scenes/main.tscn")
+```
+
+### Configurando la pantalla principal
+
+Nos ubicamos en `main.tscn` y agregamos un nodo `Control` a `Main` y le renombramos como `UI`. Nos aseguramos de asignarle un anclaje completo. Entonces le agregamos un nodo `Label` que renombramos como `CoinLabel`. En su campo de texto ponemos "Monedas: 0" y le cambiamos la fuente por la que tenemos en los assets y el tamaño a `60`. Le damos un anclaje *Centro Superior* y lo bajamos unos 20 px en $y$ para que no se vea tan junto al borde de pantalla.
+
+Duplicamos la etiqueta y la renombramos como `LevelLabel`. En su campo de texto escribimos "Nivel: 1", le ponemos un anclaje *Centro Superior* y lo bajamos un poco, por ejemplo en su posición $y$ podemos dejarla en `85`.
+
+El siguiente paso consiste en agregar los controles del jugador, considerando que estaremos trabajando con pantallas táctiles. Toca seleccionar `UI` y agregarle un nodo `Button` que llamaremos `UpButton`. Le asignamos un anclaje de *Centro Inferior*, le cambiamos el tamaño a `75` por ejemplo y lo movemos en $y$ aproximadamente 100 pixeles o un poco más hacia arriba. Lo duplicamos y le cambiamos el nombre al nuevo botón como `DownButton`. A este lo movemos hacia abajo para que no se traslape con el anterior. Repetimos para tener los botones `LeftButton` y `RightButton` en posiciones adecuadas.
+
+
+
+
+
+
