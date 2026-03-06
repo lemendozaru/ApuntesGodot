@@ -392,7 +392,27 @@ Abrimos `main.tscn`, seleccionamos `Player` y en sus señales conectaremos `hit(
 $MobTimer.stop()
 ```
 
-## Toques finales
+## Haciendo más amigable al juego
+
+Agregaremos la puntuación, la música y la manera de reiniciar el juego. Registraremos el puntaje en una variable y la mostraremos en pantalla mediante una etiqueta de texto.
+
+En la escena principal agregaremos un nodo `Control` como hijo de `Main` y le llamaremos `UserInterface`. Nos llevará automáticamente al viewport 2D donde podremos editar nuestra UI.
+
+Agregamos una etiqueta `Label` y la renombramos `ScoreLabel`. En su propiedad *Text* escribimos "Puntaje: 0", solo con fines de marcar tamaños. Desearemos cambiar el color de letra, por lo que en el inspector, en el apartado *Theme Overrides* buscamos *Colors* y activamos la casilla *Font Colors* y en el recuadro que está al lado cambiamos a un tono oscuro. En este caso, se eligió el negro. Movemos la etiqueta un poco lejos de la esquina en la que estaba.
+
+### Creando un tema de interfaz
+
+Con `UserInterface` seleccionado, nos vamos al inspector en su apartado *Theme* y propiedad *Theme*. Le damos clic donde pone [vacío] y luego en *Nuevo Theme*. Volvemos a dar clic en el icono que aparece para que muestre las propiedades del tema y abajo, una vista previa del mismo. En el inspector podemos observar las pocas propiedades: *Escala*, *Fuente predeterminada* y *Tamaño de Fuente predeterminado*. La segunda propiedad nos pide un archivo de fuentes, para lo cual tenemos uno llamado `Montserrat-Medium.ttf`y está en la carpeta `assets/fonts/`. El tamaño lo cambiamos a `22`.
+
+### Almacenando el puntaje
+
+Agregaremos un script al nodo `ScoreLabel` y agregaremos justo después del `extends`
+
+```gdscript
+var score = 0
+```
+
+
 
 
 
