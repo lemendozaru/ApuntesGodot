@@ -32,7 +32,73 @@ Nos ubicamos en `main.tscn` y agregamos un nodo `Control` a `Main` y le renombra
 
 Duplicamos la etiqueta y la renombramos como `LevelLabel`. En su campo de texto escribimos "Nivel: 1", le ponemos un anclaje *Centro Superior* y lo bajamos un poco, por ejemplo en su posición $y$ podemos dejarla en `85`.
 
-El siguiente paso consiste en agregar los controles del jugador, considerando que estaremos trabajando con pantallas táctiles. Toca seleccionar `UI` y agregarle un nodo `Button` que llamaremos `UpButton`. Le asignamos un anclaje de *Centro Inferior*, le cambiamos el tamaño a `75` por ejemplo y lo movemos en $y$ aproximadamente 100 pixeles o un poco más hacia arriba. Lo duplicamos y le cambiamos el nombre al nuevo botón como `DownButton`. A este lo movemos hacia abajo para que no se traslape con el anterior. Repetimos para tener los botones `LeftButton` y `RightButton` en posiciones adecuadas.
+El siguiente paso consiste en agregar los controles del jugador, considerando que estaremos trabajando con pantallas táctiles. Toca seleccionar `UI` y agregarle un nodo `Button` que llamaremos `UpButton`. Le asignamos un anclaje de *Centro Inferior*, le cambiamos el tamaño a `75` por ejemplo y lo movemos en $y$ aproximadamente 100 pixeles o un poco más hacia arriba. Lo duplicamos y le cambiamos el nombre al nuevo botón como `DownButton`. A este lo movemos hacia abajo para que no se traslape con el anterior. Repetimos para tener los botones `LeftButton` y `RightButton` en posiciones adecuadas. Ahora toca configurar los botones, pero primero crearemos al jugador.
+
+## Configurando al jugador
+
+### Creando al jugador
+
+Seleccionamos `Main` y le agregamos un nodo `Area2D`. Le llamaremos `Player`. A este le añadimos un nodo `Sprite2D` y en su propiedad *Texture* daremos clic en [vacío] y mediante la *Carga rápida* cargaremos `idle.png`. Nos percataremos que se ve algo borrosa esta imagen, por lo que buscamos la propiedad *Texture* de la sección *CanvasItem* y seleccionamos `Nearest`. La calidad debe haber mejorado sustancialmente. Como siguiente actividad, nos dirigimos al apartado *Animation* de la sección *Sprite2D* y en su propiedad *Hframes* cambiamos a `4` para que el sprite tenga "solo" un personaje a la vez.
+
+Con el sprite ya configurado, corresponde agregarle a `Player` un `CollisionShape2D`. En este caso su forma de colisión será un *RectangleShape2D*. Le cambiamos el tamaño para que sea más pequeña que el sprite.
+
+Seleccionamos `Player` y en su propiedad *Scale* del apartado *Transform* le cambiamos a `3`, luego en su posición lo llevamos a más o menos el centro de la pantalla.
+
+Ahora sí, a configurar los botones. Seleccionamos `Player` y le adjuntamos un script vacío que llamaremos `player.gd`. Luego seleccionamos `UpButton` y conectamos sus señales `ButtonUp()` y `ButtonDown` a `Player`. Podemos probar si el funcionamiento de estos botones es correcto si sustituimos el `pass` por `print("presionado")` para el primero y `print("no presionado")` para el segundo y corremos el juego. Los mensajes se deberían mostrar en la salida de Godot mientras el juego está en ejecución.
+
+Verificado que todo funciona como se espera, volvemos a poner `pass` en donde estaba y conectamos las mismas señales pero ahora de los botones restantes al mismo `Player`.
+
+### Programando al jugador
+
+Crearemos tres variables, una que almacenará la dirección del jugador, dependiendo de los botones presionados; una que configurará la velocidad del jugador y otra que determinará si el jugador puede o no moverse, dependiendo también del estado de los botones.
+
+En el script `player.gd` agregamos estas variables con las siguientes líneas:
+
+```gdscript
+var direction : Vector2
+var speed : int = 350
+var canMove : bool
+```
+
+Debajo de estas asignaciones agregamos la función que estará ejecutándose cada frame:
+
+```gdscript
+func _process(delta: float):
+	if canMove:
+		position += direction * speed * delta
+```
+
+Estas líneas permiten que el motor verifique si el personaje puede moverse, y si es así, cambiará su posición de acuerdo a la dirección indicada multiplicada por la velocidad que definimos arriba. Sin embargo, debemos multiplicar de nuevo pero ahora por `delta`, la cual representa el tiempo que se tarda el juego en completar un frame. Esto es así para asegurarnos de que el personaje siempre se mueva a la misma velocidad, sin importar la tasa de cuadros por segundo.
+
+Pero, ¿cómo sabe el motor que el personaje sí puede moverse? Pues cuando no haya algún botón presionado. Agregamos esta comprobación a cada una de las señales `button_up()` que tenemos en el script:
+
+```gdscript
+canMove = false
+```
+
+Y también a las `button_down()` les agregaremos su correspondiente comprobación:
+
+```gdscript
+canMove = true
+```
+
+También necesitamos definir la dirección del jugador. Esto también lo haremos en las señales de los botones `button_down()`, pero respetando la dirección asignada al botón anteriormente. Por ejemplo, para el botón izquierdo quedaría:
+
+```gdscript
+func _on_left_button_button_down():
+    direction = Vector2.LEFT
+```
+
+Y para el derecho sería:
+
+```gdscript
+func _on_right_button_button_down():
+    direction = Vector2.RIGHT
+```
+
+Repetimos para los demás botones y guardamos. Podemos probar qué tal se mueve nuestro jugador.
+
+Probablemente nos dimos cuenta que el jugador puede "salirse" de la pantalla, lo cual es un comportamiento indeseable. Debemos limitarle tanta libertad. Podemos utilizar paredes invisibles o demás elementos, aunque en esta ocasión resulta bastante práctico utilizar otro recurso, la función `clamp()`. Definamos las coordenadas del punto más alto y a la izquierda donde pueda llegar el personaje y luego el punto más bajo y a la derecha. Al primer par de coordenadas lo almacenaremos como una variable de valores mínimos y al segundo como otra variable pero ahora de valores máximos. Dichas coordenadas deberían ser obtenidas manualmente, considerando que el personaje no debe tocar la interfaz ni los botones.
 
 
 
