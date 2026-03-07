@@ -28,7 +28,7 @@ get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 ### Configurando la pantalla principal
 
-Nos ubicamos en `main.tscn` y agregamos un nodo `Control` a `Main` y le renombramos como `UI`. Nos aseguramos de asignarle un anclaje completo. Entonces le agregamos un nodo `Label` que renombramos como `CoinLabel`. En su campo de texto ponemos "Monedas: 0" y le cambiamos la fuente por la que tenemos en los assets y el tamaño a `60`. Le damos un anclaje *Centro Superior* y lo bajamos unos 20 px en $y$ para que no se vea tan junto al borde de pantalla.
+Nos ubicamos en `main.tscn` y agregamos un nodo `Control` a `Main` y le renombramos como `UI`. Nos aseguramos de asignarle un anclaje completo. Entonces le agregamos un nodo `Label` que renombramos como `CoinsLabel`. En su campo de texto ponemos "Monedas: 0" y le cambiamos la fuente por la que tenemos en los assets y el tamaño a `60`. Le damos un anclaje *Centro Superior* y lo bajamos unos 20 px en $y$ para que no se vea tan junto al borde de pantalla.
 
 Duplicamos la etiqueta y la renombramos como `LevelLabel`. En su campo de texto escribimos "Nivel: 1", le ponemos un anclaje *Centro Superior* y lo bajamos un poco, por ejemplo en su posición $y$ podemos dejarla en `85`.
 
@@ -183,6 +183,102 @@ if area.is_in_group("coins"):
 	score += 1
 	get_parent().get_node("UI/CoinsLabel").text = "Coins: " + str(score)
 ```
+
+### Apareciendo las monedas
+
+En `main.tscn` seleccionamos `Main` y le adjuntamos un script (le llamaremos `main.gd`). Ahí crearemos un par de variables:
+
+```gdscript
+# Nivel actual del juego
+var level : int = 1
+# Escena a instanciar para nuestras monedas
+@export var coin : PackedScene
+```
+
+También debemos considerar que las monedas deben aparecer solo en el área que nuestro jugador puede pisar, por lo que debajo de estas variables repetiremos las que ya tenemos en `player.gd`:
+
+```gdscript
+# Área donde aparecerán las monedas
+var minPositions : Vector2 = Vector2(21, 168)
+var maxPositions : Vector2 = Vector2(519, 743)
+```
+
+Después de declarar nuestras variables debemos crear una función que nos permita instanciar nuestras monedas. Esta función debe ser llamada cuando inicie el juego, así que la pondremos dentro de `_ready()`.
+
+```gdscript
+func _ready() -> void:
+	instantiate_coins()
+```
+
+La variable `level` será la que defina cuántas monedas aparecerán en pantalla, por lo que en el Nivel 1 solo habrá una moneda, mientras que en el Nivel 2 habrá 2, y así sucesivamente. Para implementar esta mecánica, usaremos un ciclo que se repite tantas veces como el número de nivel en el que estemos. En ese ciclo declaramos una variable que tomará la escena instanciada en `coin` (podemos cargarla de una vez en el inspector: `coin.tscn`), luego definimos dos coordenadas extraídas aleatoriamente a partir de las mínimas y máximas de nuestra área jugable y se las asignamos a la posición de la nueva escena instanciada. Por último, agregamos dicha escena.
+
+```gdscript
+func instantiate_coins():
+	# se repetirá tantas veces como el nivel actual
+	for i in range(level):
+		# variable que tomará la escena instanciada
+		var coin_instance : Area2D = coin.instantiate()
+		# coordenada aleatoria en x
+		var random_x : float = randf_range(minPositions.x, maxPositions.x)
+		# coordenada aleatoria en y
+		var random_y : float = randf_range(minPositions.y, maxPositions.y)
+		# asignamos ambas coordenadas a la nueva escena
+		coin_instance.position = Vector2(random_x, random_y)
+		# agregamos la escena instanciada pero diferida
+		call_deferred("add_child", coin_instance)
+```
+
+Si probamos el juego, ya deberían aparecer tantas monedas como el valor de `level` y al tocarlas con el jugador debería actualizarse el puntaje.
+
+## Programando la lógica del juego
+
+Entramos en `player.gd`. Declararemos otra variable que almacenará el número de monedas que se han recolectado en el nivel.
+
+```gdscript
+var coins_collected : int
+```
+
+Luego nos dirigimos al final del script y en la función `_on_area_entered()` agregamos unas líneas, para dejarla como se ve enseguida:
+
+```gdscript
+func _on_area_entered(area: Area2D) -> void:
+	if area.is_in_group("coins"):
+		# contamos las monedas recolectadas
+		coins_collected += 1
+		# incrementamos el puntaje
+		score += 1
+		# cargamos el nodo CoinsLabel del nodo padre y le asignamos el puntaje
+		get_parent().get_node("UI/CoinsLabel").text = "Coins: " + str(score)
+		# si coincide el nivel con las monedas recolectadas...
+		if coins_collected == get_parent().level:
+			# reiniciamos el contador de monedas
+			coins_collected = 0
+			get_parent().level_passed()
+```
+
+Nos vamos a `main.gd` y al final de todo creamos la función que llamamos al final del último bloque que escribimos:
+
+```gdscript
+func level_passed():
+	# incrementamos el nivel
+	level += 1
+	# actualizamos el texto en pantalla
+	$UI/LevelLabel.text = "Nivel: " + str(level)
+	# traemos el ciclo de nuevo
+	instantiate_coins()
+```
+
+Continuamos en la escena `main`, en la cual seleccionamos `Player` y lo agregamos a un grupo llamado `players`. Enseguida creamos un script para el nodo `Coin` en su respectiva escena. Con el mismo nodo seleccionado conectamos su señal `area_entered()` consigo mismo. En el script escribimos:
+
+```gdscript
+func _on_area_entered(area: Area2D) -> void:
+	# si colisiona con un jugador...
+	if area.is_in_group("players"):
+		# se elimina
+		queue_free()
+```
+
+
 
 
 
