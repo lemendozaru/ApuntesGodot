@@ -100,7 +100,89 @@ Repetimos para los demás botones y guardamos. Podemos probar qué tal se mueve 
 
 Probablemente nos dimos cuenta que el jugador puede "salirse" de la pantalla, lo cual es un comportamiento indeseable. Debemos limitarle tanta libertad. Podemos utilizar paredes invisibles o demás elementos, aunque en esta ocasión resulta bastante práctico utilizar otro recurso, la función `clamp()`. Definamos las coordenadas del punto más alto y a la izquierda donde pueda llegar el personaje y luego el punto más bajo y a la derecha. Al primer par de coordenadas lo almacenaremos como una variable de valores mínimos y al segundo como otra variable pero ahora de valores máximos. Dichas coordenadas deberían ser obtenidas manualmente, considerando que el personaje no debe tocar la interfaz ni los botones.
 
+Para la forma en la que conformamos los diferentes elementos, dichas variables nos quedaron como sigue. Consideremos el caso único de cada uno de nosotros, así que tómense como valores de referencia, nada más.
 
+```gdscript
+var minPositions : Vector2 = Vector2(21, 168)
+var maxPositions : Vector2 = Vector2(519, 743)
+```
+
+Ahora, al final de la función `_process()` agregamos las líneas
+
+```gdscript
+position.x = clamp(position.x, minPositions.x, maxPositions.x)
+position.y = clamp(position.y, minPositions.y, maxPositions.y)
+```
+
+Con esto, nuestro caracter debería tener movimientos limitados a los bordes de la pantalla. En caso de no ser así, toca ajustarlos en las variables correspondientes.
+
+### Animando al jugador
+
+Hemos estado trabajando con un sprite estático para la configuración de nuestro personaje. Sin embargo, solo era un *dummy*. Para nuestro personaje final necesitamos que tenga animaciones. Para ello, en `main.tscn` eliminamos a `Sprite2D` y lo sustituimos con un `AnimatedSprite2D`. Lo dejamos seleccionado y en el inspector, propiedad *Sprite Frames* damos clic en *vacío* y le damos en *Nuevo -> SpriteFrames*. Damos clic en el icono que aparecerá en ese mismo lugar para abrir el Editor de cuadros de animación.
+
+En este editor solo está una animación llamada "default". Le cambiamos el nombre a "Back". Luego damos clic en *Añadir animación* y la nombramos "Death". Agregaremos las animaciones "Front", "Idle" y "Walk".
+
+Seleccionamos "Back" y damos clic en *Añadir fotogramas desde hoja de sprites* (se encuentra en la barra de herramientas del editor) y escogemos `back.png`. Veremos una vista previa de los frames de animación, pero colocados uno al lado de otro. Debemos asegurarnos de dividir la rejilla de manera que nos deje 4 sprites (uno por cada "personaje", cuatro horizontales y uno vertical). Nos aseguramos de dejar habilitado el *Loop de animación*. Si el sprite se ve borroso, cambiemos su propiedad *Filter* en la sección *Texture* a `Nearest`. Si la animación nos parece lenta o rápida, podemos cambiar su velocidad en la propiedad *Speed Scale*.
+
+Repetimos los pasos para las demás animaciones, aunque "Death" solo tiene un cuadro de animación. Por otro lado, dejaremos la animación "Idle" como la única que se cargue al iniciar el juego, esto tras habilitar el botón *Reproducción automática al cargar* que está a la izquierda del *Loop de animación*.
+
+### Programando las animaciones
+
+Comencemos definiendo las animaciones que se darán cuando el jugador realice determinadas acciones. En primer lugar, la animación por defecto ("Idle") debe cargarse al iniciar (lo cual ya hicimos) y debe mantenerse mientras no nos movamos. Para ello nos dirigimos al final de `func _process()` en `player.gd` y agregamos las líneas:
+
+```gdscript
+else:
+    $AnimatedSprite2D.animation = "Idle"
+```
+
+Tengamos en cuenta que van por fuera del `if`.
+
+Para las demás animaciones debemos considerar a cuál botón corresponden. Por ejemplo, la animación "Back" le toca al botón "Up", así que agregamos lo siguiente a su respectivo bloque de código (`_on_up_button_button_down()`), justo después de `direction = Vector2.UP`:
+
+```gdscript
+$AnimatedSprite2D.animation = "Back"
+```
+
+Lo mismo aplica para la animación "Front" que va con el botón "Down" y "Walk" tanto con el botón "Right" como el botón "Left". Sin embargo, con estos últimos agregamos una línea más, quedando como sigue para el primero:
+
+```gdscript
+func _on_right_button_button_down() -> void:
+	canMove = true
+	direction = Vector2.RIGHT
+	$AnimatedSprite2D.animation = "Walk"
+	$AnimatedSprite2D.flip_h = false
+```
+y para el segundo:
+
+```gdscript
+func _on_left_button_button_down():
+	canMove = true
+	direction = Vector2.LEFT
+	$AnimatedSprite2D.animation = "Walk"
+	$AnimatedSprite2D.flip_h = true
+```
+
+## Configurando las monedas
+
+Creamos una escena nueva y agregamos un `Area2D` como raíz y le renombramos `Coin`. A este le agregamos un `Sprite2D` y arrastramos la imagen `Coin.png` a su propiedad *Texture*, para después cambiarle la escala a `0.25`. Después agregamos un `CollisionShape2D` al mismo `Coin` con un *CircleShape2D*. Guardamos la escena como `coin.tscn`.
+
+### Incrementando el puntaje
+
+Primero crearemos un grupo que englobe al nodo `Coin` y todas sus copias o instancias. Abrimos `coin.tscn`, seleccionamos `Coin` y en el panel de *Grupos* añadimos uno al que nombraremos "coins".
+
+Después abrimos `main.tscn` y seleccionamos `Player`. Declaramos una nueva variable:
+
+```gdscript
+var score : int
+```
+
+Nos dirigimos a *Señales* y conectamos la señal `area_entered()`. Dentro de la nueva función escribimos:
+
+```gdscript
+if area.is_in_group("coins"):
+	score += 1
+	get_parent().get_node("UI/CoinsLabel").text = "Coins: " + str(score)
+```
 
 
 
