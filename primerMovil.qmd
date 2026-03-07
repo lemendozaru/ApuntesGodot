@@ -278,7 +278,44 @@ func _on_area_entered(area: Area2D) -> void:
 		queue_free()
 ```
 
+Listo, ya tenemos la mecánica básica del juego terminada.
 
+## Efectos visuales
+
+Crearemos un efecto de confetti que aparecerá cuando terminemos un nivel.
+
+### Configurando el confetti
+
+Creamos una escena y le ponemos de raíz un nodo `CPUParticles2D`, lo renombramos como `ConfettiParticles` y guardamos la escena con el mismo nombre (`confetti_particles.tscn`). Si nos acercamos al nodo veremos que está liberando continuamente partículas. En el inspector modificaremos algunas de sus propiedades. En *Amount* lo dejamos en `50`, en *Time -> Lifetime* lo dejamos en `2`s y bajamos un poco dentro de la misma sección *Time*. Cambiamos los siguientes valores: *Explosiveness*: `0.6`, *Randomness*: `0.2`; en sección *Direction* cambiamos *Direction Y*: `-8`, y *Spread*: `23.41`; en sección *Gravity* modificamos *Gravity Y*: `400`; en la sección *Initial Velocity* cambiamos *Velocity Max*: `1000`; en sección *Angle* llevamos el *Min*: `25`, y el *Max*: `35`, *Curve* le damos valor mínimo de `-360` y máximo de `360` con punto izquierdo en `(0,360)` y punto derecho en `(1,-214)`; en la sección *Color* cargamos un nuevo *Color Ramp* del tipo `Gradient` y le asignamos a ambos colores unos tonos rojizos o violáceos, cambiamos la *Interpolation* a `Cubic`; en la sección *Hue Variation* dejamos todo por defecto, pero la curva la armamos con coordenadas de `(0,1)` y `(1,-1)`.
+
+Con todas esas propiedades editadas deberíamos tener un efecto de partículas similar a confetti. Podemos ahora activar la propiedad *One Shot* en la sección *Time* para que solo se active una vez. Toca posicionarlo en un punto donde se consiga el efecto deseado en la pantalla del juego. Se sugiere que lo ubiquemos en el centro horizontal pero un poco abajo de la pantalla. Unas coordenadas en *Transform -> Position* de `(270,1000)` parecen funcionar bien.
+
+### instanciando el cofetti
+
+En `main.gd` justo debajo del instanciamiento de `coin` ponemos
+
+```gdscript
+# instanciamos el confetti
+@export var confetti : PackedScene
+```
+
+y cargamos dicha escena en el inspector.
+
+En la parte final del script agregamos otra función:
+
+```gdscript
+func instantiate_confetti():
+	var confetti_instance : CPUParticles2D = confetti.instantiate()
+	add_child(confetti_instance)
+	confetti_instance.position = Vector2(270,980)
+	confetti_instance.emitting = true
+```
+
+Y agregamos esto al final de la función `level_passed()`
+
+```gdscript
+instantiate_confetti()
+```
 
 
 
