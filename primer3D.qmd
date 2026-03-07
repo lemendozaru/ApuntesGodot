@@ -406,7 +406,7 @@ Con `UserInterface` seleccionado, nos vamos al inspector en su apartado *Theme* 
 
 ### Almacenando el puntaje
 
-Agregaremos un script al nodo `ScoreLabel` y agregaremos justo después del `extends`
+Agregaremos un script al nodo `ScoreLabel`, lo guardamos como `scripts/score_label.gd` y agregaremos justo después del `extends`
 
 ```gdscript
 var score = 0
@@ -423,7 +423,118 @@ Abrimos `main.gd` y escribimos en la parte inferior de la función `_on_mob_time
 
 Estas líneas permiten que el nodo `ScoreLabel` intercepte la señal `squashed` de los enemigos y llame a la función `_on_mob_squashed`.
 
+Volvamos a `score_label.gd`para definir la función `_on_mob_squashed()`. Allí incrementaremos el puntaje y actualizaremos el texto en pantalla.
 
+```gdscript
+func _on_mob_squashed():
+	score += 1
+	text = "Score: %s" % score
+```
+
+La última línea utiliza el valor de la variable `score` para reemplazar el símbolo `%s`. Al utilizar esta función, Godot convierte automáticamente los valores a texto, lo cual es conveniente para mostrar texto en etiquetas.
+
+Ya podríamos probar el juego y ver que tras aplastar algunos enemigos, sí aumenta el puntaje.
+
+### Reiniciar el juego
+
+Vamos a mostrar un mensaje en pantalla cuando el jugador muera y nos pondremos a espera una acción. Volvemos a `main.tscn` y seleccionamos `UserInterface`, le agregamos un nodo `ColorRect` y lo llamamos `Retry`. Lo vamos a usar como una superposición que permita oscurecer la pantalla completa. Debido a eso, le aplicaremos un anclaje *Completo*. Si vemos que no toma el tamaño de la pantalla, entonces seleccionamos `UserInterface` y le aplicamos el mismo anclaje. Volvemos a seleccionar `Retry` y le cambiamos el color a negro, seleccionando el recuadro blanco al lado de la propiedad *Color* y poniendo un cero en las tres cajas (R, G y B). Para darle transparencia debemos modificar el valor A (alfa) a un aproximado de `100`. Ahora le agregamos un nodo `Label` a `Retry` y escribimos en su campo "Presiona Enter para reiniciar" y le aplicamos un anclaje de *Centro*.
+
+Abriremos `main.gd` y agregamos la función `_ready()` agregamos la línea
+
+```gdscript
+func _ready():
+	$UserInterface/Retry.hide()
+```
+
+Con esa línea escondemos la superposición. Pero la mostraremos cuando el jugador pierda con la siguiente línea agregada a `func _on_player_hit()`
+
+```gdscript
+$UserInterface/Retry.show()
+```
+
+Con lo anterior resuelto, ahora debemos habilitar la lectura de la tecla {{<kbd Enter>}}. Utilizaremos una función predefinida llamada `_unhandled_input()` que puede ser detonada con cualquier entrada, aunque aquí la vamos a limitar a solo esperar la tecla específica (con la acción predeterminada "ui_accept").
+
+```gdscript
+func _unhandled_input(event):
+	if event.is_action_pressed("ui_accept") and $UserInterface/Retry.visible:
+		# esto reinicia la escena actual
+		get_tree().reload_current_scene()
+```
+
+La función `get_tree()` nos permite acceder al objeto global `SceneTree`, lo que nos permite recargar y reiniciar la escena actual.
+
+### Agregando música
+
+Anteriormente hemos utilizado el `AudioStreamPlayer2D` y podríamos pensar en volver a hacerlo. Pero debemos tener en cuenta que Godot nos permite cargar nodos fuera de escena para así no obligar a que dichos nodos carguen en cada reinicio, lo que los hace volver a empezar cada vez. Esta propiedad del motor se conoce como *autoloads* o *autocargas* y haremos uso de ella en este momento para conseguir que la música siempre se esté reproduciendo en segundo plano.
+
+Creamos una escena nueva y le pondremos como raíz un `AudioStreamPlayer`, así, sin 2D ni 3D. Este es útil cuando no queremos manejar posiciones o distancias en la emisión del sonido. Es decir, queremos que simplemente suene. Le cambiamos el nombre a `MusicPlayer` y guardamos la escena como `music_player.tscn`. Cargaremos en la propiedad *Stream* el archivo `House In a Forest Loop.ogg` que se encuentra en `assets/art` y activamos su propiedad *Autoplay* para que se reproduzca al iniciar el juego.
+
+Es momento de registrar esta música como una *autocarga*. Debemos ir a la configuración del proyecto y entrar en la pestaña *Globales* en su apartado *Autoloads*. Ahí en *Ruta* cargaremos `music_player.tscn` mediante el navegador que desplegará. Debería quedar más o menos como `res://scenes/music_player.tscn`. Presionamos el botón de *Añadir*. Podemos guardar el proyecto y probarlo.
+
+## Retoques estéticos
+
+Godot cuenta con herramientas de animación incorporadas, algunas visuales y otras accesibles mediante código. Vamos a entrar un poco en este amplio abanico de opciones para darle más dinamismo al juego.
+
+### El editor de animación
+
+Abrimos la escena `player.tscn` y seleccionaremos `Player` y le agregamos un nodo `AnimationPlayer`, lo cual hará que aparezca el editor de animación como un panel en la parte inferior de la pantalla. Veremos que cuenta con una barra de herramientas, un menú de animaciones, un editor de pistas y algunas opciones más. Creemos una animación, dando clic en el botón *Animación* y luego en *Nueva*. Le llamaremos "float". Vamos a habilitar unas cuantas cosas dando clic en sus respectivos botones: primero, que la animación se reproduzca desde el inicio (Reproducción Automática al cargar); segundo, que se reproduzca en bucle (Loop de animación); y tercero, fijaremos el panel para que no se pliegue al momento de seleccionar otras partes de Godot (Fijar AnimationPlayer).
+
+La duración de la animación la dejaremos en 1.2 s (se encuentra en la caja de texto a la izquierda del botón de loop de animación). Podremos notar que la cinta gris se ha reducido, la cual indica el inicio y el final de nuestra animación. También debemos notar la barra vertical azul: es el cursor del tiempo. Hay además un deslizador en la parte inferior derecha del panel: nos permite acercar o alejar la línea de tiempo.
+
+### Animando al jugador
+
+El nodo `AnimationPlayer` nos permite animar muchas propiedades en tantos nodos como necesitemos. Pero para ello, debemos insertar o crear fotogramas clave, los cuales entran en el punto del tiempo en el que se encuentre el cursor del tiempo.
+
+Vamos a insertar las primeras claves. Seleccionamos `Character` y en el apartado *Transform* daremos clic en las llaves que se encuentran en *Position* y *Rotation*. En ambas crearemos pistas *RESET*. Aparecerán dos pistas en el editor con su respectivo icono de un diamante, lo cual nos indica que son fotogramas clave.
+
+Movamos la clave de posición a `0.3` y la de rotación a `0.1` segundos. Ahora llevaremos el cursor de tiempo a los `0.5` s, escribiendo dicho valor en la caja que está a la derecha del botón de reproducir.
+
+En el inspector editamos *Position Y* a `0.65` y *Rotation X* a `8`. Si no vemos nada en el inspector, volvemos a seleccionar `Character`. Creamos claves para ambas propiedades sin cambiar nada más.
+
+Ahora movemos la clave de posición a `0.7` s tras arrastrarla por la línea de tiempo. Después nos llevamos el cursor a los `1.2`s. Cambiamos *Position Y* a `0.35` y *Rotation X* a `-9`, creamos claves justo en esos puntos. Previsualicemos las animaciones dando clic en *reproducir*.
+
+Si bien la animación no está mal, tampoco es muy natural. Esto se debe a que Godot interpola las claves e intenta darles una transición entre cada una y esta transición está configurada de manera lineal. Debemos cambiar eso.
+
+Seleccionamos las primeras dos claves y en el inspector arrastramos hacia la izquierda la línea en *Easing* para formar una curva convexa a la izquierda con valor aproximado a `0.420`. Seleccionamos la siguiente clave y le damos un curvado convexo a la izquierda de aproximadamente `0.440`. Luego aplicamos lo contrario a la siguiente clave, hacerla convexa a la derecha con un valor de `0.206`. Guardamos y probamos. Veremos que ahora nuestro caracter flota y se ve más "animado".
+
+Un último punto, podemos controlar la velocidad de la animación mediante código. Consideremos que el caracter debería flotar más rápido cuando se mueve, así que lo implementamos en la función `_physics_process()` de `player.gd`, justo después de la verificación de movimiento, quedando como sigue:
+
+```gdscript
+if direction != Vector3.ZERO:
+		direction = direction.normalized()
+		# configurando la propiedad Basis que afecta la rotación
+		$Pivot.basis = Basis.looking_at(direction)
+		# hace más rápidas las animaciones
+		$AnimationPlayer.speed_scale = 4
+	else:
+		$AnimationPlayer.speed_scale = 1
+```
+
+Algo más, `Pivot` puede también modificar las animaciones. Para probar el punto, agreguemos la siguiente línea al final de lo que acabamos de escribir, pero fuera del `else`:
+
+```gdscript
+# arquearse al saltar
+$Pivot.rotation.x = PI / 6 * velocity.y / jump_impulse
+```
+
+### Animando al enemigo
+
+Una propiedad muy útil de las animaciones en Godot es que podemos reutilizarlas en nodos o escenas que tengan la misma estructura. Por ejemplo, el jugador y los enemigos cuentan con nodos `Pivot` y `Character` en la misma jerarquía, por lo que podemos copiar las animaciones de uno al otro. Veamos cómo.
+
+1. Abrimos `player.tscn` y seleccionamos su `AnimationPlayer`, luego damos clic en el botón *Animación* del editor de animaciones y escogemos la opción *Gestionar animaciones...*. Luego damos clic en el botón *Copiar animación al portapapeles* de la animación "float" y aceptamos.
+
+2. Abrimos `mob.tscn`, seleccionamos `Mob` y le agregamos un `AnimationPlayer`. Lo seleccionamos y volvemos a escoger *Gestionar animaciones...* en el botón *Animación* de su respectivo editor de animaciones, pero ahora seleccionamos *Nueva librería*. Damos clic en *Aceptar*, sin escribir nada. Toca darle al botón de *Pegar animación en la librería desde el portapapeles* y "float" debería aparecer en la ventana. Ya solo aceptamos.
+
+3. En el editor de animaciones del `AnimationPlayer` de `Mob` debemos asegurarnos que la animación "float" esté seleccionada y que esté habilitada la *Reproducción automática al cargar (el botón que está al lado del nombre de la animación).
+
+Como último toque, aleatoricemos la velocidad de la animación para los enemigos. Al final de la función `initialize()` en `mob.tscn` agregamos lo siguiente:
+
+```gdscript
+# aleatorizamos la velocidad de animación
+	$AnimationPlayer.speed_scale = random_speed / min_speed
+```
+
+Y ya, hemos terminado nuestro primer juego en 3D.
 
 
 
