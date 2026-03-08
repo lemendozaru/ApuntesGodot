@@ -504,8 +504,8 @@ El siguiente requisito consiste en instalar el SDK de Android. Puede obtenerse d
 
 Optaremos por seguir las instrucciones para Android Studio. Después de instalarlo, debemos ejecutarlo para completar la preparación del SDK. La instalación estándar que nos sugiere el "Setup Wizard" cumple la mayoría de los requisitos. Si la instalación ya había sido hecha antes, toca verificar que contemos con:
 
-- Android SDK Platform-Tools version 35.0.0 or later
-- Android SDK Build-Tools version 35.0.1
+- Android SDK Platform-Tools versión 35.0.0 o superior
+- Android SDK Build-Tools versión 35.0.1
 - Android SDK Platform 35
 - Herramientas de línea de comandos del SDK de Android (más reciente)
 
