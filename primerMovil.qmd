@@ -513,7 +513,31 @@ También es necesario contar con NDK y CMake, ambos instalados y configurados. S
 
 ### Configurando Godot
 
-Nos vamos al menú *Editor -> Configuración del Editor* y buscamos el apartado *Exportar -> Android*. Ahí
+Nos vamos al menú *Editor -> Configuración del Editor* y buscamos el apartado *Exportar -> Android*. Ahí nos saldrán varios elementos. Nos enfocamos en los que se llaman "rutas": las ubicaciones en donde se han instalado tanto OpenJDK17 como el Android SDK. Deberían aparecer por defecto, si no es el caso, toca localizarlos. Por ejemplo, el SDK se encuentra en "~/Android/Sdk" y OpenJDK está en "/usr/lib/jvm/java-17-openjdk". Deben ser las carpetas raíz de la instalación, no donde está el ejecutable.
+
+El siguiente paso es crear el archivo de clave que exige Google, al menos hasta la fecha de elaboración de este documento. Nos dirigimos a la carpeta en la que queramos almacenar la dichosa "Debug Keystore" (una buena idea es crear una carpeta dentro del proyecto, llamarla `.keystore` y excluirla del control de versiones mediante el archivo `.gitignore`) y abrimos una terminal ahí (o el CMD en esa ubicación), en ella ejecutamos la siguiente línea de comandos:
+
+```bash
+keytool -v -genkey -keystore mygame.keystore -alias mygame -keyalg RSA -validity 10000
+```
+
+Donde debemos personalizar `mygame.keystore` y el alias. Por ejemplo, nuestro juego se llama Recolector, pues entonces nuestra línea queda:
+
+```bash
+keytool -v -genkey -keystore recolector.keystore -alias recolector -keyalg RSA -validity 10000
+```
+
+Se nos harán unas cuantas preguntas, como la contraseña (que no se nos olvide, además debe ser de más de 6 caracteres), nombre, puesto, organización, localidad, estado y código del país. Si realmente deseamos publicar en Google Play, estos datos deben ser reales. Al finalizar nos dirá que ha generado un archivo.
+
+### Exportando el ejecutable
+
+En teoría, ya debería haber estar todo configurado. Podemos comprobarlo si nos vamos a *Proyecto -> Exportar*, añadimos *Android (Ejecutable)* y no debería haber mensajes de error. Si llegara a haber alguno relacionado con la ausencia de algún componente, revisamos cuál es. Si por otro lado, se nos dice que "La plataforma de destino requiere compresión de texturas ETC2/ASTC...", damos clic en *Mostrar ajustes del proyecto* y ahí activamos *Importar ETC2 ASTC*. Damos clic en *Activar y reiniciar*. Godot se cerrará y volverá a abrir.
+
+Volvemos a la ventana de *Exportar* y debería estar todo resuelto. En la pestaña de *Opciones* nos aseguramos que el formato de exportación sea *APK*. Si deseamos optimizar ligeramente el tamaño de nuestro ejecutable, podemos desmarcar *arm64-v8a*. En el apartado *Keystore* van los datos que pusimos en la generación de la clave, como por ejemplo: en *Release* va la ruta al archivo de clave generado (`.../.keystore/recolector.keystore`); en *Usuario de Release* va el alias que le pusimos al juego (`recolector`) y en *Contraseña de Release* pues va la contraseña que pusimos.
+
+Enseguida le damos clic a *Exportar proyecto*, nos pedirá la ruta y el nombre, le pondremos `recolector.apk` y comenzará a generar el ejecutable. Aunque genere un par de archivos, el único necesario es el `.apk`. Podemos llevarlo a algún dispositivo móvil y probarlo.
+
+Con esto damos por finalizado el capítulo 5, que podría considerarse una mera introducción. Es momento de pasar a la parte fuerte, juegos de un género específico.
 
 
 
