@@ -15,7 +15,7 @@ book:
         - primerMovil.qmd
     - part: "Plataformas"
       chapters:
-        - 2D.qmd
+        - plataformas2D.qmd
         - 3D.qmd
     - summary.qmd
     - references.qmd

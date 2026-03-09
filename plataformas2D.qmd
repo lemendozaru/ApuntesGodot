@@ -1,0 +1,57 @@
+# Plataformas 2D
+
+## Diseño del juego
+
+Antes de entrar directamente al desarrollo como tal, siempre es buena idea ir aterrizando los objetivos que queremos, las mecánicas de nuestro juego, movimientos permitidos, si habrá o no coleccionables, comportamiento de los enemigos, objetivos que plantearemos al jugador, etc. Es lo que llamamos "Game Design" o Diseño del Juego. Iremos ahondando en los diversos puntos.
+
+### Objetivos
+
+- El jugador debe recolectar monedas y evitar el contacto con los enemigos.
+- Su meta es alcanzar el área final en cada nivel, señalada por una bandera.
+
+### Controles y movimientos
+
+El personaje será controlado por teclado y mando, con los siguientes controles principales:
+
+- Movimiento, de izquierda a derecha.
+- Salto
+
+Para mejorar la experiencia en el control, agregaremos una aceleración cuando el personaje comience a moverse y frenarle cuando el jugador suelte las teclas de movimiento.
+
+Esas adiciones crearán un movimiento que se sienta más natural y suave.
+
+### Enemigos y sistema de daño
+
+Incluiremos enemigos con movimientos predeterminados entre dos puntos específicos. Definiremos la distancia que recorrerán y el ángulo en que lo harán.
+
+Cuando un enemigo toque al personaje dispararemos el sistema de daño que consistirá de:
+
+- Restarle una vida al jugador.
+- Una interfaz de usuario que muestre dicho efecto (usaremos corazones representando cada oportunidad).
+- Cuando el caracter sea dañado, agregaremos un breve "flash" rojo y un ligero efecto de temblor a la pantalla.
+- Reproduciremos un sonido de daño.
+
+### Coleccionables
+
+Colocaremos monedas a través del escenario como coleccionables. Al recogerlas, el puntaje aumentará por $1$. Le aplicaremos a las monedas efectos para que parezcan estar girando y flotando, además de agregar un efecto de sonido cuando sean recogidas.
+
+### Fin del nivel
+
+Colocaremos una bandera que represente el final del nivel, la cual también fungirá como un "portal" hacia el siguiente escenario.
+
+### Menu del juego
+
+El juego contará con un sencillo menú que permita iniciar el juego o bien, salir de él.
+
+Con todo esto en mente, comencemos con el desarrollo.
+
+## Configurando el proyecto
+
+Primero que todo, crearemos las carpetas típicas: `assets`, `scripts` y `scenes`. También importaremos los "assets" que utilizaremos, tal y como lo hemos venido haciendo, llevándolos a su carpeta correspondiente.
+
+### Creando el "tile map"
+
+Para iniciar crearemos una capa de "tile map", que es donde pintaremos nuestro mapa de "tiles". Los "tiles" son básicamente una rejilla de elementos que no solo cumplen una función estética (podemos pensar que son el fondo), si no que también son funcionales, ya que pueden representar paredes, pisos o portales y comportarse como tales.
+
+Ya estamos en una escena, así que agregamos un nodo `Node`, le llamamos `Main` y enseguida le agregamos un nodo `TileMapLayer`.
+
