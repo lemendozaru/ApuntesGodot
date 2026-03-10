@@ -49,9 +49,62 @@ Con todo esto en mente, comencemos con el desarrollo.
 
 Primero que todo, crearemos las carpetas típicas: `assets`, `scripts` y `scenes`. También importaremos los "assets" que utilizaremos, tal y como lo hemos venido haciendo, llevándolos a su carpeta correspondiente.
 
-### Creando el "tile map"
+### Configurando el escenario
 
-Para iniciar crearemos una capa de "tile map", que es donde pintaremos nuestro mapa de "tiles". Los "tiles" son básicamente una rejilla de elementos que no solo cumplen una función estética (podemos pensar que son el fondo), si no que también son funcionales, ya que pueden representar paredes, pisos o portales y comportarse como tales.
+Para iniciar crearemos una capa de "mapa de baldosas", que es donde pintaremos nuestro mapa de "baldosas". Las baldosas o mosaicos son básicamente elementos organizados en una rejilla que no solo cumplen una función estética (podemos pensar que son el fondo), si no que también son funcionales, ya que pueden representar paredes, pisos o portales y comportarse como tales.
 
-Ya estamos en una escena, así que agregamos un nodo `Node`, le llamamos `Main` y enseguida le agregamos un nodo `TileMapLayer`.
+Ya estamos en una escena, así que agregamos un nodo `Node`, le llamamos `Main` y enseguida guardamos la escena como `level_1.tscn`. Después le agregamos un nodo `TileMapLayer` a `Main`. Veremos que en la parte inferior de Godot aparece otro panel. Este es el editor de tilemaps. Nos iremos familiarizando con él en lo sucesivo.
+
+Con `TileMapLayer` seleccionado, buscamos su propiedad *Tile Set* y damos clic en donde pone *vacío*. Ahí clicamos en *Nuevo -> TileSet*. Ahora aparecerá otro panel inferior, el editor de tilesets. Damos clic en su propio botón *+ -> Atlas* y cargamos `assets/Sprites/Tiles/tiles_packed.png`. Confirmamos el mensaje que aparezca.
+
+Antes de continuar, cabe mencionar que es una buena práctica guardar el *tileset* como un elemento independiente de la imagen que lo conforma. Esto puede realizarse desplegando la misma propiedad *Tile Set* y dando clic en *Guardar como*. Deberíamos guardarlo con el nombre que deseemos pero en la misma ubicación que la imagen que le da origen (se guardará como un recurso, con la extensión `.tres`).
+
+Hecho lo anterior, podremos notar que la división en mosaicos de nuestro conjunto no cuadra con el mismo, ya que deja espacios sin abarcar, sobretodo en la orilla derecha y en la inferior. Ese problema lo corregimos cambiando el *Tamaño de región* que está en el editor de tilesets. El valor que tiene es de `16` para *X* y *Y*. Lo aumentamos a `18`. Debemos comprobar que efectivamente ahora queda todo el set incluido y subdividido.
+
+El cambio anterior acarrea otro detalle que debemos corregir, y es que el *Tile Size* en el inspector sigue siendo de `16`. Cambiémoslo a `18` también.
+
+Existe aún otro problema. Tenemos baldosas "vacías" en los lugares que antes estaban mal divididos. Incluso Godot nos lo advierte con un icono justo encima de nuestro conjunto de mosaicos y ahí mismo nos dice qué debemos hacer para corregirlo: clic en los tres puntos y enseguida *Eliminar Tiles fuera de la textura*.
+
+Ahora agregaremos físicas a nuestras baldosas. En el inspector buscamos el apartado *Physics Layer* y damos clic en *Añadir elemento*. Aparecerán dos arreglos, uno de capas de colisón y otro de máscaras. Ahora nos dirigimos al editor de tilesets y seleccionamos la pestaña *Pintar* y desplegamos el botón *Selecciona un editor de propiedades*. Damos clic en *Capa de Física 0*. Ya podemos ir "pintando" con físicas todos los mosaicos que deseamos que funcionen como elementos de colisión en el juego (suelos, paredes, tuberías, etc). Funciona dando clic o arrastrando el mouse. Si llegamos a aplicar esta capa a un mosaico que no queramos, podemos dar clic en los tres puntos y luego en *Limpiar* y ya podremos quitarle la "pintura" de físicas.
+
+### Pintando el escenario
+
+El siguiente paso es "pintar" las baldosas en nuestra escena, propiamente dicho. No olvidemos guardar nuestro tileset. Seleccionamos `TileMapLayer` y debe aparecer tanto una rejilla naranja a su alrededor como el editor de *Tilemaps*, lo que significa que todo va bien. Con este editor abierto, seleccionamos la baldosa deseada y vayamos pintando nuestro escenario con ella, de acuerdo a lo que tengamos en mente. Dicho editor cuenta con herramientas básicas de pintura en su parte superior. Recordemos que las que tienen capa física son las que funcionarán como elementos de colisón.
+
+No olvidemos cambiar el modo de renderizado de texturas para que estas no se vean borrosas. Puede hacerse de manera global yendo a *Proyecto -> Configuración del proyecto -> General -> Renderizado -> Texturas -> Filtro* y cambiarlo a `Nearest`.
+
+Diseñemos nuestro nivel. De entrada, dejar un espaciado de tres baldosas entre cada plataforma funciona bien para los valores por defecto. Pero no nos limitemos, experimentemos con todas las opciones disponibles de formas y figuras. Pero eso sí, para mantener cierta coherencia, tratemos de utilizar solo mosaicos del "mismo" bioma, por así decirlo.
+
+### Agregando un fondo de escenario
+
+Con `Main` seleccionado agregamos un `Sprite2D` y le cambiamos el nombre a `BackgroundSprite`. Lo arrastramos de manera que quede justo debajo de `Main`, para que así sea un elemento de fondo. En su propiedad *Texture* desplegamos y tras seleccionar *Cargar* abrimos `assets/Sprites/Backgrounds/backgroundForest.png`. Lo movemos de manera que su línea de horizonte quede por debajo de nuestras plataformas y que cubra horizontalmente todas ellas de manera sobrada.
+
+### Configurando la escena del personaje
+
+Debido a que nuestro personaje deberá interactuar con las físicas del juego, resulta adecuado utilizar un nodo especialmente hecho para este tipo de escenas. Con `Main` seleccionado, agregamos un `CharacterBody2D` y le renombramos `Player`. También lo convertiremos en una escena por sí mismo, así que lo seleccionamos y le damos clic derecho, escogemos *Guardar rama como escena* y lo dejamos como `player.tscn`. Le damos clic a este último para abrirlo como una pestaña más. Con `Player` seleccionado agregamos un nodo `Sprite2D` y en su *Texture* cargamos `assets/Sprites/Characters/character_0000.png` y le cambiamos su nombre a `PlayerSprite`.
+
+Debemos cambiar el origen del nodo `SpritePlayer`, debido a que deseamos que la referencia a él sean sus pies. Modificamos su *Offset Y* a un valor que nos permita centrarlo en sus pies, `-12` lo logra. Podemos corroborarlo si vemos la posición del caracter en la escena `main.tscn`. No se recomienda transformar la posición de los nodos raíz visualmente, ya que ello debería realizarse mediante código.
+
+Acto seguido, agregamos a `Player` su respectiva forma de colisión. Una que funciona bien para nuestro personaje es la *CapsuleShape2D*. Esta sí podemos moverla de manera que cubra bien al jugador, funciona bien cambiar su *Position Y* a `-12`. Ajustamos la forma al personaje para que nos parezca adecuada y guardamos la escena.
+
+### Creando la cámara
+
+El siguiente paso es establecer `level_1.tscn` como la escena principal si es que no lo habíamos hecho. Enseguida, podemos probar el juego. Notaremos que se ve mal, y eso se debe a que Godot muestra en pantalla la que hemos dejado por defecto. Es momento de trabajar con una cámara que siga al caracter.
+
+Agregaremos a `Player` un nodo `Camera2D` en su respectiva escena y veremos que aparece otro rectángulo encerrando a nuestro personaje. Es su cámara personal. Lo comprobaremos si corremos el juego. Pero aún así se sigue viendo raro, y es porque faltan unas cuantas configuraciones. Seleccionamos `Camera2D` y cambiamos su propiedad *Zoom* a `3` y *transform -> Position Y* a `-24`. Solo resta agregarle a nuestro `Player` un par de nodos más: un `AnimationPlayer` y un `AudioStreamPlayer`.
+
+### Mapeando los controles
+
+Es el proceso típico. Nos vamos a *Proyecto -> Configuración del proyecto* y pestaña *Mapa de entrada*. Asignamos las tres acciones a las teclas que consideremos pertinentes (típicamente las direccionales para el movimiento y {{<kbd Space>}} para el salto). Igual podemos agregar el mando y teclas adicionales.
+
+## Programando al juego
+
+
+
+
+
+
+
+
+
 
