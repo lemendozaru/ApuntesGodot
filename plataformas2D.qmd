@@ -97,7 +97,7 @@ Agregaremos a `Player` un nodo `Camera2D` en su respectiva escena y veremos que 
 
 Es el proceso típico. Nos vamos a *Proyecto -> Configuración del proyecto* y pestaña *Mapa de entrada*. Asignamos las tres acciones a las teclas que consideremos pertinentes (típicamente las direccionales para el movimiento y {{<kbd Space>}} para el salto). Igual podemos agregar el mando y teclas adicionales.
 
-## Programando al juego
+## Programando al jugador
 
 ### Moviendo al jugador
 
@@ -146,9 +146,97 @@ Modificaremos el componente vertical del vector velocidad del personaje. Agregar
 
 Ahora el personaje debería caer y no flotar.
 
+### Agregando el salto
 
+El personaje debe poder saltar solo si se cumplen tres condiciones: que el jugador haya presionado la tecla de salto, que esté en el suelo y que la velocidad se modifique antes de llamar la función `move_and_slide()`.
 
+Debido a que estaremos leyendo el estado del jugador todo el tiempo, agregamos el código correspondiente a la función `_physics_process()`, antes precisamente de que se invoque al `move_and_slide()`:
 
+```gdscript
+# Salto
+# Si la tecla de salto ha sido presionada y estamos en el suelo...
+if Input.is_action_pressed("jump") and is_on_floor():
+	# entonces...
+	velocity.y = -jump_force
+```
 
+Después de implementar el salto, toca suavizarlo para que la animación se vea más natural. Para ello utilizaremos la función `lerp()`, la cual permite suavizar las transiciones entre dos puntos, mejorando las animaciones al hacerlas más fluidas.
+
+Tras especificar un valor de inicio, un valor de fin y un peso, `lerp()` calculará un nuevo valor que es un porcentaje del camino entre el valor inicial y final (es decir, interpolará valores), creando un movimiento suave y continuo.
+
+En la misma función en la que estamos, cambiaremos la línea del movimiento `velocity.x` por la interpolación.
+
+```gdscript
+if move_input != 0:
+		# entonces la velocidad en x es interpolada entre el reposo y la aceleración
+		velocity.x = lerp(velocity.x, move_input * move_speed, acceleration * delta)
+	# si no
+	else:
+		# velocidad en x es interpolada entre el movimiento y el "freno"
+		velocity.x = lerp(velocity.x, 0.0, braking * delta)
+```
+
+### "Girando" el *sprite*
+
+Si hemos probado el juego, debimos notar que el personaje no mira en la dirección en la que se mueve. Corrijamos eso. Primero, crearemos una variable que haga referencia al nodo `PlayerSprite`, pero desde que dicho nodo esté listo. Nos vamos al principio de `player.gd` y escribimos justo después del `extends CharacterBody2D`
+
+```gdscript
+@onready var sprite : Sprite2D = $PlayerSprite
+```
+
+Enseguida crearemos la función `_process(delta)` y ahí agregaremos el "giro" del sprite. Lo hacemos en esta función debido a que queremos que esté revisando continuamente el estado del jugador pero sin físicas (lo de las físicas ya lo hace `_physics_process(delta)`).
+
+```gdscript
+func _process(delta: float):
+	# Si el caracter se está moviendo:
+	if velocity.x != 0:
+		# entonces si la velocidad en x es positiva, se gira el sprite
+		sprite.flip_h = velocity.x > 0
+```
+
+::: {.callout-note}
+
+## Nota
+
+Para que no surjan errores, en este caso en específico tenemos que activar la propiedad *Flip_h* del `Sprite2D`, ya que está volteando a la izquierda por defecto.
+:::
+
+### Animando al jugador
+
+#### Estado inactivo
+
+Agregaremos un `AnimationPlayer` al nodo `Player` en su respectiva escena. Creamos una nueva animación y le llamamos *idle*. Cambiaremos la duración de la animación a `0.5`, ademas de habilitar la *reproducción automática al cargar*. Fijamos el editor de animaciones y seleccionamos el `SpritePlayer`. Nos vamos al inspector y en la propiedad *Texture* damos clic en la llave a la izquierda. Creamos una pista *RESET* y dejamos todo como está. Las animaciones con pistas RESET son aquellas que regresan a su estado original cuando termina la animación en sí.
+
+#### Animación de movimiento
+
+En el editor de animaciones creamos otra a la que llamamos *move*. De la misma manera seleccionamos enseguida el `SpritePlayer`, luego arrastramos el archivo `assets/sprite/character/character_0001.png` a su propiedad *Texture* y creamos una clave de animación (pista RESET también). En el editor ajustamos la duración de la animación a `0.25` y activamos su animación en bucle. Enseguida movemos el cursor al segundo `0.125` y arrastramos el archivo `png` original (`character_0000.png`). Creamos otra clave y probamos la animación.
+
+#### Animando el salto
+
+Mismo procedimiento que *idle*, con la excepción de que utilizaremos únicamente el `character_0001.png`, con bucle y duración de `0.5`.
+
+### Programando las animaciones del jugador
+
+En `player.gd` agregaremos una nueva función que llamamos `_manage_animations()`. En ella controlaremos las animaciones.
+
+```gdscript
+func _manage_animations():
+	# si el caracter está en el aire:
+	if not is_on_floor():
+		# reproduce "idle"
+		$AnimationPlayer.play("jump")
+	# pero si se está moviendo:
+	elif move_input != 0:
+		$AnimationPlayer.play("move")
+	# y si nada de eso ocurre:
+	else:
+		$AnimationPlayer.play("idle")
+```
+
+Finalmente, en `_process(delta)` mandamos llamar nuestra nueva función hasta lo último, fuera del `if`:
+
+```gdscript
+_manage_animations()
+```
 
 
