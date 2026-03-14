@@ -298,7 +298,209 @@ Habilitemos el viewport 2D y llevemos al nodo del enemigo a la posición que des
 
 #### Conectando señales
 
-Ahora seleccionamos `Enemy` y conectamos su señal `body_entered()` al mismo nodo `Enemy`.
+Ahora iremos a la escena `player` y seleccionaremos `Player`. Crearemos un grupo al que llamaremos *Players* y enseguida seleccionamos `Enemy` en su propia escena y conectamos su señal `body_entered()` al mismo nodo `Enemy`. En la función que aparecerá escribimos lo siguiente:
+
+```gdscript
+# algo entró al Area2D
+func _on_body_entered(body: Node2D):
+	# Si el cuerpo que entró no está en "Players":
+	if not body.is_in_group("Players"):
+		# regresa y hace nada
+		return
+	# si no, imprime "Daño"
+	print("Daño")
+```
+
+Ejecutemos el juego y confirmemos que el daño sí se "marca" en el *output* de Godot.
+
+#### Animando al enemigo
+
+Escojamos el nodo `AnimationPlayer` del enemigo en la escena `level_1.tscn`. Debe aparecer el editor de animaciones. Creamos una nueva y le llamamos *fly*. Luego seleccionamos el `EnemySprite` y en su propiedad *Texture* (donde ya debería estar el murciélago) clicamos a su llave para crear una clave con su correspondiente pista RESET. Cambiaremos su duración a `0.4`s. Movemos el cursor de tiempo a `0.18`s y arrastramos el `characters/character_0025.png` (murciélago con las alas arriba) al *Texture* del `EnemySprite` y clicamos en la llave. Ya tenemos dos fotogramas clave. Vamos por un tercero. Llevamos el tiempo al segundo `0.3` y ahora arrastraremos el `character_0026` (murciélago con las alas abajo) al *Texture*, creando una nueva clave. No olvidemos activar el *loop de animación*.
+
+Para habilitar la animación agregamos lo siguiente justo después de la declaración de las variables:
+
+```gdscript
+func _ready():
+	# reproduce "fly" justo al aparecer en escena
+	$AnimationPlayer.play("fly")
+```
+
+## El sistema de daño
+
+Los enemigos nos dañarán si nos tocan. Cada vez que eso suceda perderemos un punto de vida. Tendremos tres al inicio, llegando a cero, el juego se tendrá que reiniciar.
+
+### Configurando la barra de vida
+
+Primero crearemos una variable en la que guardaremos los puntos de vida del caracter (en `player.gd`):
+
+```gdscript
+# puntos de vida
+@export var health : int = 3
+```
+
+### Programando el sistema de daño
+
+Luego creamos la función que será ejecutada cuando recibamos daño y verificará si la vida ha perdido todos sus puntos:
+
+```gdscript
+func take_damage(amount : int):
+	# perdemos una cantidad de vida
+	health -= amount
+	# si la vida llega a cero:
+	if health <= 0:
+		# perdemos (pero diferimos la llamada a función)
+		call_deferred("game_over")
+```
+
+Justo debajo de esta función agregaremos la de `game_over()`, en la que recargaremos el primer nivel.
+
+```gdscript
+func game_over():
+	# volvemos al principio del nivel 1
+	get_tree().change_scene_to_file("res://scenes/level_1.tscn")
+```
+
+Debemos ahora agregar el disparador de estas funciones. Se encontrará en `enemy.gd`, donde reemplazaremos esto:
+
+```gdscript
+# si no, imprime "Daño"
+	print("Daño")
+```
+
+por esto:
+
+```gdscript
+# pero si sí, recibe daño el cuerpo que haya entrado
+body.take_damage(1)
+```
+
+### Duplicando los enemigos
+
+Guardemos `Enemy` como una escena, seleccionándolo y mediante clic derecho, escogemos *Guardar rama como escena* y lo dejamos como `enemy.tscn`. Ya es posible duplicarlo y colocar sus copias alrededor del escenario. Pongamos las que consideremos necesarias, modificando su velocidad y posición. Agreguemos variedad. Podemos agregar a `Main` un `Node` y arrastrar todos los nodos `Enemy` dentro de él. Por conveniencia, le renombramos `Enemies`.
+
+## Las monedas
+
+### Configurando las monedas
+
+Comenzaremos creando una escena a la que agregaremos un nodo `Area2D` y que llamaremos `Coin`. La escena la guardamos como `coin.tscn`, naturalmente. Le añadiremos un `Sprite2D` que renombramos como `CoinSprite` y cargamos en su *Texture* el archivo `assets/Sprites/Objects/tile_0151.png` (es la única moneda). Le agregamos a `Coin` su correspondiente `CollisionShape2D` en forma de círculo y la ajustamos al sprite de la moneda.
+
+### Animando las monedas
+
+Adjuntaremos un script a `Coin` y lo dejamos como `coin.gd`. Declararemos las variables iniciales:
+
+```gdscript
+# velocidad de rotación
+var rotate_speed : float = 3.0
+# altura que flota
+var bob_height : float = 5.0
+# velocidad a la que flota
+var bob_speed : float = 5.0
+
+# posición inicial
+@onready var start_pos : Vector2 = global_position
+# sprite a cargar
+@onready var sprite : Sprite2D = $CoinSprite
+```
+
+Usaremos la función `_physics_process()` ya que requerimos físicas y ondas sinusoidales para el movimiento y rotación de las monedas:
+
+```gdscript
+func _physics_process(delta):
+	# obtener tiempo del SO
+	var time = Time.get_unix_time_from_system()
+	# rota
+	sprite.scale.x = sin(time * rotate_speed)
+	# flota arriba y abajo
+	var y_pos = ((1 + sin(time * bob_speed)) / 2) * bob_height
+	# nueva posición
+	global_position.y = start_pos.y - y_pos
+```
+
+Hecho esto, instanciamos la escena `coin` a `level_1.tscn`.
+
+### Programando las monedas
+
+Seleccionamos `Coin` y conectamos su señal `body_entered()` al propio nodo `Coin`. En la función que aparece escribimos:
+
+```gdscript
+func _on_body_entered(body: Node2D) -> void:
+	# Si el cuerpo que entra no está en "Players":
+	if not body.is_in_group("Players"):
+		# devuelve nada
+		return
+	# si sí está, llama a la función y mándale un 1
+	body.increase_score(1)
+	# borra la moneda
+	queue_free()
+```
+
+En el bloque de código anterior hemos referenciado una función que no existe. Vamos a agregarla en `player.gd`
+
+```gdscript
+func increase_score(amount: int):
+	print("Punto")
+```
+
+Probemos que cuando el jugador toque la moneda, aparece el mensaje "Punto".
+
+Si todo va bien, ya podemos duplicar las monedas alrededor del nivel a nuestro gusto y, si también lo deseamos, agruparlas todas en un nodo `Node`.
+
+## El puntaje
+
+A diferencia de los puntos de vida, en el caso del puntaje deseamos que sea persistente, es decir, que su valor se conserve aunque cambiemos de nivel. Por lo tanto, debemos asegurarnos de programarlo en un script que se autocargue y que se encuentre por encima de todas las escenas.
+
+### Creando el script de autocarga
+
+Vamos a la *Configuración del proyecto* y buscamos la pestaña *Globales*. En la caja que pide el *Nombre del nodo* escribimos `PlayerStats` y damos clic en *Añadir*. Guardamos nuestro script en la carpeta adecuada como `player_stats.gd`. Abrimos dicho script.
+
+Crearemos la variable que guardará el puntaje:
+
+```gdscript
+var score : int = 0
+```
+
+Nos vamos a `player.gd` y actualizamos la función `increase_score()` para que muestre el puntaje alcanzado.
+
+```gdscript
+func increase_score(amount : int):
+	PlayerStats.score += amount
+	print(PlayerStats.score)
+```
+
+Probemos que el puntaje sea persistente.
+
+## Fin del nivel
+
+### Creando la bandera
+
+El final del nivel debe estar en la última plataforma, así que si dejamos una moneda o enemigo en esa área, quizá deseamos quitarla. Luego, seleccionando `Main` en `level_1.tscn`, agregamos otra `Area2D` que llamaremos `EndFlag`. Le añadimos a este nodo un `Sprite2D` (`FlagSprite`) y le llevamos a su *Texture* el archivo `assets/Sprites/Objects/tile_0112.png`. Le añadimos a `EndFlag` su `CollisionShape2D` con forma de círculo y la redimensionamos acorde al sprite.
+
+### Programando la bandera
+
+Le adjuntaremos ya su respectivo script a `EndFlag`. Lo guardamos como `end_flag.gd` y conectamos su señal `body_entered()` a sí mismo. Antes de llenar la función que genera la conexión a señal, en el script declararemos la variable que guardará cuál nivel o escena cargaremos cuandos se alcance la bandera.
+
+```gdscript
+# escena que cargará al tocar la bandera
+@export var scene_to_load : PackedScene
+```
+
+Ya podemos definir la función de la señal:
+
+```gdscript
+func _on_body_entered(body):
+	# si no es un "player":
+	if not body.is_in_group("Players"):
+		# retorna
+		return
+	# si sí es un "player", carga alguna escena
+	get_tree().change_scene_to_packed(scene_to_load)
+```
+
+No podemos (ni deberíamos) poner la misma escena en esta línea, ya que eso podría causar comportamientos extraños, así que llevemos `player.tscn` a la propiedad *Scene to Load* de `EndFlag`. Confirmado que funciona, ya podemos reubicar la bandera a donde queramos. Listo, hemos finalizado la estructura principal del juego.
+
+
+
+
 
 
 
