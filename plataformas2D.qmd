@@ -77,7 +77,7 @@ Diseñemos nuestro nivel. De entrada, dejar un espaciado de tres baldosas entre 
 
 ### Agregando un fondo de escenario
 
-Con `Main` seleccionado agregamos un `Sprite2D` y le cambiamos el nombre a `BackgroundSprite`. Lo arrastramos de manera que quede justo debajo de `Main`, para que así sea un elemento de fondo. En su propiedad *Texture* desplegamos y tras seleccionar *Cargar* abrimos `assets/Sprites/Backgrounds/backgroundForest.png`. Lo movemos de manera que su línea de horizonte quede por debajo de nuestras plataformas y que cubra horizontalmente todas ellas de manera sobrada.
+Con `Main` seleccionado agregamos un `Sprite2D` y le cambiamos el nombre a `Background`. Lo arrastramos de manera que quede justo debajo de `Main`, para que así sea un elemento de fondo. En su propiedad *Texture* desplegamos y tras seleccionar *Cargar* abrimos `assets/Sprites/Backgrounds/backgroundForest.png`. Lo movemos de manera que su línea de horizonte quede por debajo de nuestras plataformas y que cubra horizontalmente todas ellas de manera sobrada.
 
 ### Configurando la escena del personaje
 
@@ -487,16 +487,308 @@ Le adjuntaremos ya su respectivo script a `EndFlag`. Lo guardamos como `end_flag
 Ya podemos definir la función de la señal:
 
 ```gdscript
-func _on_body_entered(body):
-	# si no es un "player":
+func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("Players"):
-		# retorna
 		return
-	# si sí es un "player", carga alguna escena
+	call_deferred("_load_new_scene")
+
+func _load_new_scene ():
 	get_tree().change_scene_to_packed(scene_to_load)
 ```
 
 No podemos (ni deberíamos) poner la misma escena en esta línea, ya que eso podría causar comportamientos extraños, así que llevemos `player.tscn` a la propiedad *Scene to Load* de `EndFlag`. Confirmado que funciona, ya podemos reubicar la bandera a donde queramos. Listo, hemos finalizado la estructura principal del juego.
+
+## Interfaz de Usuario
+
+Nuestra *UI* consistirá de solo dos elementos: la barra de vida representada por corazones y una etiqueta de texto que muestra el puntaje alcanzado.
+
+### Configurando la barra de vida
+
+Nos centramos de momento en la escena `player`. Seleccionando su nodo principal, agregamos un nodo `CanvasLayer`. Este nodo es útil ya que "dibuja" sus elementos de manera independiente, por lo que resulta excelente para los HUDs o la UI.
+
+Con `CanvasLayer` seleccionado, agregamos un nodo `TextureRect`, cuya *Texture* será el asset `tile_0044.png` (precisamente el corazón). Cambiaremos su tamaño, en *Layout -> Transform -> Size* lo dejamos en `80` por `80`. También editaremos su propiedad *Expand Mode* para dejarlo como `Fit Width`.
+
+Volvemos a seleccionar el `CanvasLayer` y añadimos otro nodo, un `HBoxContainer` (lo renombraremos como `HealthContainer`) y le cambiamos su *Size Y* a `80` para que se ajuste bien al corazón del `TextureRect`. Duplicamos este último para contar con los tres corazones por defecto y tras seleccionar los tres, los arrastramos dentro del contenedor. Así deberían quedar bien alineados proporcionalmente.
+
+### Configurando la etiqueta del puntaje
+
+Crearemos un nodo `Label` como hijo de `CanvasLayer` y le llamamos `ScoreText`. En su caja de texto escribimos "Puntaje: 500", solo como un *placeholder*. En la propiedad *Label Settings* agregamos una nueva dando clic en *vacío* y editamos su tamaño a `38`px. Luego, en *Shadow* agregamos una sombra editando el valor de *Alpha* aproximadamente a `135` y aumentamos su tamaño a `6`px. Movemos esta etiqueta un poco para evitar que se traslape con la barra de vida.
+
+Guardamos y ejecutamos el juego. Comprobemos que el `CanvasLayer` sea visible y permanezca en la esquina superior izquierda de la pantalla. Si no es así, deshabilitemos su propiedad *Follow Viewport*. Debemos tener en cuenta que el `CanvasLayer` se dibuja en el viewport del juego, no necesariamente en la cámara.
+
+### Programando la UI
+
+En `player.gd` primero declararemos un par de señales que nos permitan actualizar tanto la vida como el puntaje solo cuando haya cambios en sus valores y no en cada frame. Esto lo hacemos para mantener un rendimiento adecuado. Escribimos al principio de dicho script lo siguiente:
+
+```gdscript
+# Actualizar la vida - señal de daño
+signal OnUpdateHealth (health : int)
+# Actualizar el puntaje - señal de moneda
+signal OnUpdateScore (score : int)
+```
+
+Enseguida nos vamos a la función `take_damage()` y antes del `if` agregamos:
+
+```gdscript
+# emitimos la señal de daño
+OnUpdateHealth.emit(health)
+```
+
+Luego, dentro de `increase_score()` y en lugar del `print()`
+
+```gdscript
+# emitimos señal de incremento de puntaje
+OnUpdateScore.emit(PlayerStats.score)
+```
+
+Seleccionamos el `CanvasLayer` y le adjuntamos un script. Le guardamos con el nombre por defecto y al principio declararemos las siguientes variables:
+
+```gdscript
+# contenedor de corazones
+@onready var health_container = $HealthContainer
+# los corazones en sí
+var hearts : Array = []
+# etiqueta del puntaje
+@onready var score_text : Label = $ScoreText
+# referencia al jugador
+@onready var player = get_parent()
+```
+
+Crearemos dos funciones que nos permitan actualizar el número de corazones de acuerdo a la vida restante y el puntaje de acuerdo con las monedas recolectadas.
+
+```gdscript
+# actualizar el número de corazones
+func _update_hearts(health : int):
+	pass
+
+# actualizar el puntaje
+func _update_score(score : int):
+	pass
+```
+
+Completamos la función `_ready()`, asignando el arreglo de corazones al contenedor de los mismos. Conectamos las señaeles y actualizamos los valores de vida y puntos.
+
+```gdscript
+func _ready():
+	hearts = health_container.get_children()
+	player.OnUpdateHealth.connect(_update_hearts)
+	player.OnUpdateScore.connect(_update_score)
+	_update_hearts(player.health)
+	_update_score(PlayerStats.score)
+```
+
+Ahora sí completamos las funciones que dejamos pendientes. Haremos un barrido por el número de corazones actuales y determinaremos cuántos iconos de corazones mostrar.
+
+```gdscript
+# actualizar el número de corazones
+func _update_hearts(health : int):
+	for i in range(len(hearts)):
+		hearts[i].visible = i < health
+```
+Luego, convertimos el número de puntos a texto y lo mandamos al campo de texto de la etiqueta correspondiente.
+
+```gdscript
+# actualizar el puntaje
+func _update_score(score : int):
+	score_text.text = "Score: " + str(score)
+```
+
+Probemos que la UI ya actualice vida y puntos en pantalla.
+
+## Retoques
+
+### Un daño más "visible"
+
+#### Coloreando al caracter
+
+Agreguemos un efecto de daño para cuando un enemigo nos toque. Creamos una función llamada `_damage_flash()` en `player.gd`. Esta función pintará de rojo a nuestro caracter por un tiempo que definiremos nosotros. La agregamos al final del script.
+
+```gdscript
+func _damage_flash():
+	# coloreamos de rojo
+	sprite.modulate = Color.RED
+	# creamos un timer que dure 0.5s
+	await get_tree().create_timer(0.05).timeout
+	# devolvemos el color base
+	sprite.modulate = Color.WHITE
+```
+
+Para que se muestre este efecto, nos vamos a la función `take_damage()` y agregamos antes del `if`
+
+```gdscript
+_damage_flash()
+```
+
+#### Vibrando la cámara
+
+Esto se consigue mediante un script que agregaremos a nuestro nodo `Camera2D` de la escena `player`. Le llamaremos `camera_shake.gd`. Comenzamos declarando una variable y luego las funciones correspondientes:
+
+```gdscript
+extends Camera2D
+
+# intensidad de la sacudida
+var intensity : float = 0
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	# nos conectamos con la señal de daño
+	get_parent().OnUpdateHealth.connect(_damage_shake)
+
+func _damage_shake(health : int):
+	intensity = 3
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float):
+	# disminuiremos la intensidad del daño conforme pase el tiempo
+	if intensity > 0:
+		# interpolamos decrecientemente
+		intensity = lerpf(intensity, 0, delta * 10)
+		# el offset de la cámara toma un valor aleatorio
+		offset = _get_random_offset()
+
+# función que crea y devuelve el valor de offset para la cámara
+func _get_random_offset() -> Vector2:
+	var x = randf_range(-intensity, intensity)
+	var y = randf_range(-intensity, intensity)
+	return Vector2(x, y)
+```
+
+### Evitando la caída infinita
+
+Durante las pruebas, es muy seguro que hayamos visto que al caer, no ocurre nada más. Evitemos eso detonando el *game over*. En `player.gd` agregamos al final en `_process()` la línea:
+
+```gdscript
+if global_position.y > 200:
+    game_over()
+```
+
+### Paralaje
+
+Seleccionemos el sprite que contiene el fondo en `level_1.tscn` y modifiquemos su *Scale* a `0.5` y su *Position* a `0, 0`. Añadamos a `Main` un `Node2D` y llamémosle `Backgrounds`, arrastremos ahí el nodo `Background`. Debemos asegurarnos de llevar `Backgrounds` justo debajo de `Main` en el árbol de nodos. Dupliquemos el `Background` unas tres veces y movamos horizontalmente las copias de manera que cubran todo el nivel. Podemos usar un *Position X* de `-512` para la primera copia, `512` para la segunda, y `512+512` para la tercera.
+
+Enseguida adjuntamos un script a `Background` y le dejamos el nombre por defecto. Dentro de este dejamos el código como se muestra:
+
+```gdscript
+extends Node2D
+
+# tasa de movimiento relativo al jugador (70% de su velocidad)
+var parallax : float = 0.7
+# referencia al nodo Player
+@onready var player = $"../Player"
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float):
+	# Obtenemos la posición global del nodo tras multiplicar la del jugador
+	# por parallax
+	global_position = player.global_position * parallax
+```
+
+Por último, con `Backgrounds` aún seleccionado, nos vamos a su propiedad *Visibility -> Modulate* y la cambiamos a un tono "verdoso" que haga mejor juego con un nivel boscoso.
+
+### El audio
+
+Abrimos `player.gd` y agregamos al principio la referencia al `AudioStreamPlayer` que ya tenemos.
+
+```gdscript
+# Referencia al AudioStreamPlayer
+@onready var audio : AudioStreamPlayer = $AudioStreamPlayer
+```
+
+Luego agregamos las variables que precargarán los efectos de sonido, antes de que sean necesarios.
+
+```gdscript
+# precarga del audio de daño
+var take_damage_sfx : AudioStream = preload("res://assets/Audio/take_damage.wav")
+# precarga del audio de las monedas
+var coin_sfx : AudioStream = preload("res://assets/Audio/coin.wav")
+```
+
+Crearemos la función que reproduzca los sonidos, de acuerdo lo necesario.
+
+```gdscript
+func play_sound(sound : AudioStream):
+	# "audio" transmitirá lo que tengamos en "sound"
+	audio.stream = sound
+	# y lo reproducirá
+	audio.play()
+```
+
+Luego haremos la llamada a la función con su sonido correspondiente en cada función donde se necesite. Por ejemplo, agregamos a `take_damage()`, antes del `if`:
+
+```gdscript
+# reproducimos el sonido de daño
+play_sound(take_damage_sfx)
+```
+
+Y en `increase_score()`, al final:
+
+```gdscript
+# reproducimos el sonido de moneda
+play_sound(coin_sfx)
+```
+Probemos que todos los sonidos se reproduzcan correctamente.
+
+## Añadiendo nuevos niveles
+
+La manera más sencilla de hacerlo es simplemente duplicando el nivel que ya tenemos y modificando sus nodos. En el sistema de archivos damos clic derecho a `level_1.tscn` y le damos en *Duplicar*. Le nombramos `level_2.tscn` y guardamos.
+
+### Cambiando el fondo
+
+Le seleccionamos y lo primero que haremos será cambiar el fondo. Con cada nodo `Background` seleccionado cambiamos su *Texture* por el archivo `assets/Sprites/Backgrounds/backgroundDesert.png`. Al terminar, seleccionamos `Backgrounds` y alteramos su propiedad *Modulate* para dejarle un tono amarillento, más acorde a un desierto.
+
+### Editando el escenario
+
+Seleccionamos `TileMapLayer` y con ayuda del borrador y la herramienta del rectángulo en el editor de tilemaps borramos el mapa de baldosas. Esto con el fin de construir uno nuevo.
+
+Dejamos el diseño de este nuevo nivel al criterio personal. Debemos editar también la posición de enemigos y coleccionables, además de ubicar la bandera final en un punto que consideremos divertido. Cuidemos que el reto sea considerable pero no demasiado frustrante. El juego debe continuar siendo justo.
+
+### Editando la bandera del primer nivel
+
+Una vez que hayamos terminado con el segundo nivel, toca volver al primero. Abrimos `level_1.tscn` y en `EndFlag` cambiamos su propiedad *Scene to Load* desplegándola y dando en *Cargar* la escena `level_2.tscn`. Comprobemos que al tocar la bandera del primer nivel nos lleva al segundo y que el puntaje se haya conservado en la transición.
+
+## Agregando un menú
+
+Crearemos una pantalla de inicio en la que incluiremos un botón de "Play" y otro de "Quit" para comenzar a jugar y quitar el juego, respectivamente.
+
+### Configurando la pantalla de menú
+
+Creamos una nueva escena a la que agregamos como nodo raíz un nodo `Control` que llamamos `Menu`. Guardamos la escena como `menu.tscn`. Agregamos un nodo `TextureRect` al cual cargaremos como *Texture* el fondo del bosque (el mismo del primer nivel) y le aplicamos un anclaje completo. En su propiedad *Expand Mode* le cambiamos a `Fit Height` y lo renombramos como `Background`.
+
+Añadimos a `Menu` un nodo `Label` que llamaremos `Title` y en su campo de texto escribimos el título del juego (le dejamos "Plataformas 2D"). Cambiamos sus propiedades *Horizontal Alignment* y *Vertical Alignment* a `Center` y asignamos un anclaje "Centro". La etiqueta está lista en cuanto a posición pero casi no se ve. Crearemos un nuevo *Label Settings* y lo abrimos dando clic en su icono. Cambiamos el tamaño de fuente a `48`px, el color lo dejamos en un amarillo ligero, ponemos una línea exterior verde de `5`px y una sombra también de `5`px (el *Alpha* se dejó de `112`).
+
+Agregaremos un `Button` a `Menu`. Le llamamos `PlayButton` y escribimos en su propiedad *Text* la palabra "Play". Le ponemos un anclaje de "Centro" y lo redimensionamos como deseemos. Hay que posicionarlo de manera que no se traslape con la pantalla de título.
+
+Duplicamos el `PlayButton` y le llamamos `QuitButton`. Escribimos en su *Text* "Quit" y lo movemos abajo del primer botón.
+
+### Programando la pantalla de menú
+
+Seleccionamos `Menu` y le adjuntamos un script `menu.gd`. Luego seleccionamos el `PlayButton` y conectamos su señal `pressed()` al propio `Menu`. En la función que aparece escribimos
+
+```gdscript
+func _on_play_button_pressed():
+	# Mandamos a cero el puntaje
+	PlayerStats.score = 0
+	# cargamos el primer nivel
+	get_tree().change_scene_to_file("res://scenes/level_1.tscn")
+```
+
+Luego repetimos para el `QuitButton` y escribimos en su señal:
+
+```gdscript
+func _on_quit_button_pressed():
+	# cerramos el juego
+	get_tree().quit()
+```
+
+Probemos que los botones funciones. Si todo está bien, toca realizar unos ajustes mínimos. Establecemos `menu.tscn` como la escena principal. Luego, a la bandera de final del segundo nivel le asignamos en *Scene to Load* nuestra nueva escena principal (`menu.tscn`, naturalmente). Y por último, editamos la función `game_over()` de `player.gd` para que cargue la pantalla de menú:
+
+```gdscript
+func game_over():
+	# volvemos a la escena principal
+	get_tree().change_scene_to_file("res://scenes/menu.tscn")
+```
+
+Listo, ya hemos terminado nuestro juego de plataformas en dos dimensiones. Ahora solo queda agregar más niveles reutilizando la estructura básica que ya tenemos.
 
 
 
