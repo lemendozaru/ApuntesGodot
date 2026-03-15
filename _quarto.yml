@@ -16,11 +16,9 @@ book:
     - part: "Plataformas"
       chapters:
         - plataformas2D.qmd
-        - 3D.qmd
-    - summary.qmd
-    - references.qmd
-
-bibliography: references.bib
+    - part: "RPGs"
+      chapters:
+        - microRPG.qmd
 
 format:
   html:

@@ -1,0 +1,40 @@
+# RPG por turnos
+
+## Diseño del juego
+
+### Descripción general
+
+Un RPG basado en turnos se divide en una serie de eventos en los que cada caracter decide qué hacer en un combate. Gana el primero en derrotar a su oponente. En primer instancia, el juego cuenta con dos personajes: el jugador a la izquierda y la IA a la derecha. Cada turno le pertenece a uno de esos personajes. Si es el turno del jugador, este decidirá qué acción realizar. Si es el turno del caracter de la IA, la acción será determinada automáticamente con base en funciones preestablecidas.
+
+### Elementos del caracter
+
+Cada personaje en el juego tendrá su respectivo "sprite" que flotará arriba y abajo y se coloreará de rojo cuando reciba daño. Además tendrá una barra de vida que disminuirá si el caracter ha sido atacado o aumentará si este se cura; dichos cambios se podrán notar visual y numéricamente.
+
+### Movimientos de combate
+
+Son recursos que representan varias acciones que un personaje puede ejecutar durante su turno, pudiendo ser ataques o curaciones. Esas acciones contarán con los siguientes elementos:
+
+- **Nombre**: Un nombre definido para el movimiento.
+- **Descripción**: Lo que la movimiento realiza.
+- **Daño/Cura**: La cantidad de daño/salud que la accón causa/repone.
+- **Ponderación**: El valor que influye el proceso de toma de decisiones de la IA, causando que ciertas acciones tengan mayor probabilidad de ser elegidas.
+
+### Turno del jugador
+
+Un panel aparecerá al fondo de la pantalla, permitiendo al jugador elegir cuál movimiento realizará. Estará dividido en dos secciones:
+
+- **Izquierda**: Botones representando los diferentes movimientos asignados al jugador.
+- **Derecha**: Nombre y descripción del movimiento.
+
+Cuando el jugador elija un movimiento, causará daño a la IA o se curará a sí mismo, entonces dejando el turno para la IA.
+Player’s Turn
+
+### Turno de la IA
+
+Una función determinará la acción a realizar. Esta decision estará basada en los siguientes factores:
+
+- **Vida de la IA**: La cantidad actual de salud del caracter de la IA.
+- **Vida del jugador**: La cantidad actual de salud del personaje del jugador.
+- **Peso aleatorio del movimiento**: Un valor que influye sobre lo atractivo de un movimiento dado.
+
+La IA ajustará la ponderación de los movimientos basada en su propia salud. Por ejemplo, si es baja, le será más atractivo curarse. La IA escogerá un movimiento aleatorio basada en esas ponderaciones.
