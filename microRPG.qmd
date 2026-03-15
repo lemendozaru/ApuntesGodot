@@ -38,3 +38,11 @@ Una función determinará la acción a realizar. Esta decision estará basada en
 - **Peso aleatorio del movimiento**: Un valor que influye sobre lo atractivo de un movimiento dado.
 
 La IA ajustará la ponderación de los movimientos basada en su propia salud. Por ejemplo, si es baja, le será más atractivo curarse. La IA escogerá un movimiento aleatorio basada en esas ponderaciones.
+
+## Configuración del proyecto
+
+Primero crearemos las carpetas que le darán estructura básica a nuestro proyecto: `actions`, `assets`, `scenes` y `scripts`. Luego importaremos los assets, los cuales se encuentran en la plataforma.
+
+Enseguida crearemos una escena cuyo nodo raíz será un `Node2D` al cual llamaremos `Main`. Guardamos la escena pero como `battle.tscn`.
+
+Agregamos un nodo `TextureRect` que renombramos como `Background`. Luego, a `Main` le agregamos un `Camera2D`. Nos devolvemos a `Background`, cuya *Texture* será ocupada con la carga de `backgroundCastles.png`. Lo reubicamos y redimensionamos de manera que quede  cubierto el viewport de la cámara recién agregada. Luego, en su propiedad *Stretch Mode* le cambiamos por `Tile` para que al moverlo o cambiarlo de tamaño se repita a lo largo del viewport. Por último, para asegurarnos de que siempre quede al fondo, nos vamos a su propiedad *CanvasItem -> Ordering -> Z Index* y le damos un valor negativo (puede ser simplemente `-1`).
