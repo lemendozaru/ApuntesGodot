@@ -19,6 +19,10 @@ book:
     - part: "RPGs"
       chapters:
         - microRPG.qmd
+    - summary.qmd
+    - references.qmd
+
+bibliography: references.bib
 
 format:
   html:
