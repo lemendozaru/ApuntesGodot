@@ -2,7 +2,7 @@
 
 Crearemos nuestro primer mini-juego en dos dimensiones. Aunque sea simple, será un juego completo. Bajo la marcha, abordaremos el funcionamiento del motor, la estructura de un proyecto típico de Godot y la construcción de un juego en 2D.
 
-Cabe enfatizar que esta parte del curso no tendrá capturas de pantalla, ya que se desea lograr una familiaridad con el motor Godot mediante la práctica, no únicamente leyendo manuales.
+Cabe enfatizar que este curso no tendrá capturas de pantalla, ya que se desea lograr una familiaridad con el motor Godot mediante la práctica, no únicamente leyendo manuales.
 
 ## Mecánicas del juego
 

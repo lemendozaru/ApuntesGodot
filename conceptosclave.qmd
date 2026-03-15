@@ -6,7 +6,7 @@ Son esos cuatro elementos los que resultan la base de Godot. No los abordaremos 
 
 ## Escenas
 
-Podemos dividir nuestro juego en escenas que se pueden reutilizar. Una escena puede ser un personaje, un arma, un menú en la interfaz de usuario, una casa, un nivel, o cualquier cosa que se queramos. Las escenas de Godot son muy flexibles.
+Podemos dividir nuestro juego en escenas que se pueden reutilizar. Una escena puede ser un personaje, un arma, un menú en la interfaz de usuario, una casa, un nivel, o cualquier cosa que queramos. Las escenas de Godot son muy flexibles.
 
 ## Nodos
 
