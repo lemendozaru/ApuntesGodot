@@ -46,3 +46,319 @@ Primero crearemos las carpetas que le darán estructura básica a nuestro proyec
 Enseguida crearemos una escena cuyo nodo raíz será un `Node2D` al cual llamaremos `Main`. Guardamos la escena pero como `battle.tscn`.
 
 Agregamos un nodo `TextureRect` que renombramos como `Background`. Luego, a `Main` le agregamos un `Camera2D`. Nos devolvemos a `Background`, cuya *Texture* será ocupada con la carga de `backgroundCastles.png`. Lo reubicamos y redimensionamos de manera que quede  cubierto el viewport de la cámara recién agregada. Luego, en su propiedad *Stretch Mode* le cambiamos por `Tile` para que al moverlo o cambiarlo de tamaño se repita a lo largo del viewport. Por último, para asegurarnos de que siempre quede al fondo, nos vamos a su propiedad *CanvasItem -> Ordering -> Z Index* y le damos un valor negativo (puede ser simplemente `-1`).
+
+## Los personajes
+
+Este juego contará con dos caracteres: el que controlará el jugador y el de la IA. Ambos combatirán por turnos hasta que la vida de uno de los dos llegue a cero. Crearemos y programaremos primero al jugador, para enseguida estar trabajando con los movimientos.
+
+### Creando los personajes
+
+Ambos caracteres derivan de la misma escena, lo único que los diferenciará será el lado para donde estén volteando. Eso lo controlaremos mediante código.
+
+Primeramente creamos al jugador mediante un nodo `Node2D` que será hijo de `Main`. Lo llamaremos `Character`. Debido a que el personaje no se estará moviendo ni interactuará con físicas, no es necesario agregar una forma de colisión.
+
+Añadamos a `Character` un nodo `Sprite2D` cuya textura será nuestro asset del dragón (`Dragon.png`). Vamos a aplicarle un *Offset Y* de `-70` para que así su pivote quede entre sus pies. Le añadimos a `Character` un `AudioStreamPlayer` y le adjuntamos su respectivo `character.gd`.
+
+### Programando los personajes
+
+Como ya se pudo haber notado, ambos caracteres serán básicamente el mismo, con la salvedad de que uno es controlado por la IA y otro por nosotros. Debido a ello, podemos programar ambos en su estructura básica.
+
+#### Creando la clase
+
+Abriremos `character.gd` y crearemos nuestra primera **clase**, la cual nos permitirá llamar al script desde cualquier parte de nuestro programa. Agregamos entonces lo siguiente al script:
+
+```gdscript
+# Creamos nuestra clase Character
+class_name Character
+```
+
+#### Creando señales
+
+Siguiente, crearemos las señales que nuestro script emitirá. Serán solo dos: una cuando se reciba daño y otra cuando se cure. Ambas enviarán la salud actual del caracter como parámetro.
+
+```gdscript
+# Señal de daño
+signal OnTakeDamage (health : int)
+# Señal de curación
+signal OnHeal (health : int)
+```
+
+#### Declarando variables
+
+Ahora declararemos las variables necesarias. Después de las señales pondremos lo siguiente:
+
+```gdscript
+# Variable lógica que indica si el caracter es el jugador
+@export var is_player : bool
+# Muestra la salud actual del caracter
+@export var cur_health : int
+# Guarda la vida máxima del caracter
+@export var max_health : int
+# Muestra la escala hacia la cual va el caracter. Muestra el turno del jugador
+var target_scale : float = 1.0
+# Referencia al AudioStreamPlayer
+@onready var audio : AudioStreamPlayer = $AudioStreamPlayer
+# Precarga el audio de daño
+var take_damage_sfx : AudioStream = preload("res://assets/Audio/take_damage.wav")
+# Precarga el audio de sanación
+var heal_sfx : AudioStream = preload("res://assets/Audio/heal.wav")
+```
+
+#### Creando funciones adicionales
+
+Necesitaremos varias funciones que nos permitan realizar las acciones de nuestro juego. Debido a ello, las armamos, aunque aún no las terminemos de desarrollar. Eso lo haremos conforme las vayamos necesitando.
+
+Si no creamos el script con una plantilla vacía, ya tenemos `_process(delta)`. En caso contrario, la añadiremos. Agreguemos pues las siguientes estructuras:
+
+```gdscript
+# Llamada cuando comience el turno del caracter
+func begin_turn ():
+	# Mayor a 1: turno del caracter
+	target_scale = 1.1
+
+# Llamada cuando finalice el turno
+func end_turn ():
+	# Menor a 1: fin del turno
+	target_scale = 0.9
+
+# Recibir daño
+func take_damage (amount : int):
+	pass
+
+# Sanación
+func heal (amount : int):
+	pass
+
+# Realizar un movimiento
+func cast_combat_action (action, opponent):
+	pass
+
+# Reproducri el sonido correspondiente
+func _play_audio (stream : AudioStream):
+	pass
+```
+
+## El *GameManager*
+
+Programaremos el script que administrará el juego en sí, es decir, gestionará los turnos y el estado del juego en el sistema de combate.
+
+### Programando el *GameManager*
+
+Seleccionaremos `Main` y le adjuntaremos su respectivo script, al cual llamaremos `game_manager.gd`.
+
+#### Variables
+
+Declararemos las siguientes variables:
+
+```gdscript
+# Definen al caracter actual
+@export var player_character : Character
+@export var ia_character : Character
+# Almacena cuál caracter es el actual
+var current_character : Character
+# Verifica si el juego ha terminado
+var game_over : bool = false
+```
+
+#### Gestión de los turnos
+
+La función principal será `next_turn()`. Esta será llamada en cualquier momento que termine el turno de un caracter. Gestionará el cambio de turnos entre jugador e IA.
+
+```gdscript
+# Gestión del cambio de turnos
+func next_turn():
+	# Si el juego ha terminado:
+	if game_over:
+		# Retorna
+		return
+
+	# Si el caracter no es nulo:
+	if current_character != null:
+		# Termina el turno para ese caracter
+		current_character.end_turn()
+
+	# Si el caracter actual es la IA o es nulo:
+	if current_character == ia_character or current_character == null:
+		# Cede el turno al jugador
+		current_character = player_character
+	# Si no:
+	else:
+		# Cede el turno a la IA
+		current_character = ia_character
+
+	# Comienza el turno para el caracter actual
+	current_character.begin_turn()
+```
+
+#### Manejo de los movimientos de la IA
+
+Necesitamos conducir los movimientos del jugador y la IA durante sus turnos, habilitando la IU del jugador, agregando un tiempo de espera para la IA (será artificial, la IA realmente no lo necesita) y ejecutar los movimientos. Agregamos el siguiente código al final de `next_turn()`
+
+```gdscript
+	# Si es turno del jugador:
+	if current_character.is_player:
+		# Habilita la IU
+		pass # Por mientras
+	# Si no
+	else:
+		# Deshabilita la IU si aún está activa
+		# Genera un tiempo de espera entre 0.5 y 1.5 segundos
+		var wait_time = randf_range(0.5, 1.5)
+		await get_tree().create_timer(wait_time).timeout
+		# Ejecuta el movimiento
+		await get_tree().create_timer(0.5).timeout
+		# La función se manda a llamar a sí misma
+		next_turn()
+```
+
+#### Manejo de los movimientos del jugador
+
+Esta función entrará cuando el jugador ejecute algún movimiento mediante su IU.
+
+```gdscript
+# Gestión de los movimientos del jugador
+func player_cast_combat_action(action : CombatAction):
+	# Si el caracter no es el jugador:
+	if player_character != current_character:
+		# Retorna
+		return
+	# Eljugador ejecuta un movimiento contra la IA
+	player_character.cast_combat_action(action, ia_character)
+	# Deshabilita la IU y espera medio segundo
+	await get_tree().create_timer(0.5).timeout
+	# Llama al siguiente turno
+	next_turn()
+```
+
+#### Selección de movimiento por la IA
+
+Dejaremos solo la estructura de esta función, ya que requiere más elementos. Dejemos en que será la que gestione la respuesta de la IA ante los movimientos del jugador.
+
+```gdscript
+# Gestión de las decisiones de la IA
+func ia_decide_combat_action() -> CombatAction:
+	return null
+```
+
+Godot nos marcará que no reconoce el tipo de dato `CombatAction`. Sin problema, lo declararemos más delante.
+
+## Los turnos
+
+### Configurando
+
+Conectemos los componentes que ya hemos desarrollado y gestionemos los turnos de cada caracter. Guardemos el `Character` como una escena nueva (`character.tscn`), pero aún dentro de `battle.tscn` lo seleccionamos y lo reubicamos en *Position X* igual a `-230`. Lo duplicamos y movemos su copia a *Position X* en `230`. Renombramos los nodos como `PlayerCharacter` e `IACharacter`. Habilitamos la propiedad *Is Player* para el `PlayerCharacter`.
+
+Luego, con `Main` seleccionado, en el inspector asignamos `PlayerCharacter` en *Player Character* e `IACharacter` en *IA Character*. Guardamos.
+
+### Implementando las mecánicas
+
+Dentro de la función `_ready()` del `game_manager.gd` (si no la tenemos la creamos) mandamos llamar a `next_turn()`
+
+```gdscript
+func _ready():
+	next_turn()
+```
+
+## Los movimientos
+
+Esta es la sección más compleja del juego. Es aquí donde usaremos recursos para crear y gestionar los movimientos que pueden realizar ambos caracteres.
+
+### Los recursos
+
+En Godot usamos recursos cuando queremos contar con datos que pueden ser almacenados en los archivos del juego y que deseamos utilizar cuando sean necesarios. Los recursos pueden ser escenas, audios, scripts, imágenes e incluso crear uno nuevo. En el juego de Plataformas 2D usamos un recurso: el tilemap. Para este juego, crearemos un tipo llamado `CombatAction`.
+
+Para crear un movimiento, primero crearemos un script nuevo. Vayamos al sistema de archivos de Godot y en la carpeta de `scripts` damos clic derecho para crear un nuevo script. Le llamaremos `combat_action.gd`. Podemos tranquilamente borrar todo el código predefinido y agregamos esto al principio:
+
+```gdscript
+# Definimos la clase
+class_name CombatAction
+
+# Cambiamos el tipo de herencia a Recurso
+extends Resource
+
+# Declaramos variables
+# Nombre del movimiento
+@export var display_name : String
+# Descripción
+@export var description : String
+# Daño a melée
+@export var melee_damage : int = 0
+# Cantidad de sanación
+@export var heal_amount : int = 0
+# Ponderación
+@export var base_weight : int = 100
+```
+
+### Creando un recurso de movimiento
+
+Toca crear nuestro primer movimiento o `CombatAction`. Damos clic derecho en la carpeta `actions` y luego en *Crear nuevo -> Recurso*. En el buscador localizamos `CombatAction`, lo elegimos y le damos en crear. Le nombraremos `slash.tres`. Entonces damos doble clic al elemento en el sistema de archivos y nos debe mostrar sus propiedades en el inspector. Las editamos con los siguientes valores:
+
+- *Display Name*: `Slash`
+- *Description*: `Deal 8 damage` (o en español)
+- *Melee Damage*: `8`
+- *Heal Amount*: `0`
+
+Dejamos la última propiedad en `100`.
+
+Crearemos al menos otros dos movimientos: una curación (`heal.tres`) y un golpe pesado (`heavy_hit.tres`). Repitamos los mismos pasos pero con los siguientes valores:
+
+Para la curación,
+
+- *Display Name*: `Heal`
+- *Description*: `Heal 10 health points` (o en español)
+- *Melee Damage*: `0`
+- *Heal Amount*: `10`
+
+Para el golpe pesado, que sí es más deseable que la IA trate de hacerlo,
+
+- *Display Name*: `Heavy Hit`
+- *Description*: `Deal 15 damage` (o en español)
+- *Melee Damage*: `15`
+- *Heal Amount*: `0`
+- *Base Weight*: `150`
+
+### Integrando los movimientos a los caracteres
+
+Abrimos `character.gd` y agregamos una variable que guardará el arreglo de movimientos:
+
+```gdscript
+# Arreglo de movimientos
+@export var combat_actions : Array[CombatAction]
+```
+
+Ya podemos asignar los movimientos a los personajes. Seleccionamos el `PlayerCharacter` y en el inspector damos clic en su propiedad *Combat Actions*. Le damos un tamaño de `3` y mediante la carga rápida o arrastrando desde el sistema de archivos le asignamos nuestras tres acciones (`heal.tres`, `heavy_hit.tres` y `slash.tres`).
+
+### Actualizando el código
+
+En `character.gd` actualizamos la función `cast_combat_action()`:
+
+```gdscript
+func cast_combat_action(action: CombatAction, opponent: Character):
+	pass
+```
+
+Y en `game_manager.gd` agregamos al final de `next_turn()` pero antes del segundo `await`
+
+```gdscript
+        # Permitimos a la IA decidir qué hacer
+		var action_to_cast = ia_decide_combat_action()
+		# Ejecuta el movimiento
+		ia_character.cast_combat_action(action_to_cast, player_character)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
