@@ -346,11 +346,194 @@ Y en `game_manager.gd` agregamos al final de `next_turn()` pero antes del segund
 		ia_character.cast_combat_action(action_to_cast, player_character)
 ```
 
+## Menú del jugador
 
+En esta sección configuraremos el menú de acciones o movimientos que tendrá disponibles el jugador. También le agregaremos una pequeña ayuda contextual cuando el jugador coloque su cursor en el movimiento.
 
+### Configurando el panel de acciones
 
+Comenzaremos agregando un `CanvasLayer` a `Maín`, que nos permitirá dibujar en pantalla los diferentes elementos de la interfaz gráfica de manera consistente, sin importar la posición de la cámara.
 
+Enseguida, al `CanvasLayer` le vamos a añadir un nodo `Panel` como hijo. Le renombramos como `CombatActionsUI`. En la propiedad *Size X* le pondremos `450` y en *Size Y* `155`. Enseguida anclamos dicho panel en el *Centro Inferior*. Probemos la escena. `Panel` debe estar centrado y en la parte inferior. Vamos a subirlo un poco para dejar un pequeño margen por debajo.
 
+Dividiremos el `Panel` en dos secciones: la izquierda donde colocaremos los botones de movimiento y la derecha donde incluiremos una breve descripción de cada uno. Veamos la primera.
+
+Con `CombatActionsUI` seleccionado, agregaremos un nodo `VBoxContainer` y le llamaremos `ButtonsContainer`. Este es una especie de rejilla que contendrá los elementos que le coloquemos dentro. Lo redimensionamos de manera que cubra la mitad del panel. Acto seguido, agregamos un `Button` al contenedor. Ponemos cualquier nombre de movimiento ("Slash" está bien) y luego lo duplicamos hasta conseguir los cuatro botones básicos de nuestra interfaz. Podemos mover un poco el contenedor o incluso redimensionarlo para que se vea mejor dentro de nuestro panel. Una vez que el contenedor esté bien dimensionado, borraremos los últimos tres botones, solo los usamos como referencia.
+
+Ahora configuraremos la otra mitad del `CombatActionsUI`. Lo seleccionamos y añadimos un nodo `RichTextLabel`. Este nodo nos permite mostrar texto en formato enriquecido (BBCode) y será donde le mostraremos al jugador la descripción del movimiento que tenga seleccionado con el cursor. Le cambiamos el nombre a este último nodo para llamarle simplemente `Description` y lo redimensionamos de manera que cubra la mayor parte de la mitad derecha del `CombatActionsUI`. Bueno, ahora escribimos el nombre del movimiento de esta manera: `[b]Slash[/b]` y su breve descripción, la cual la escribimos de la manera usual.
+
+Posiblemente el texto se vea borroso. Si ese es el caso, nos vamos a la configuración del proyecto, apartado *General -> GUI -> Tema* y activamos el *Campo de distancia con firma multicanal de Fuente predeterminado*. Después damos clic en *Guardar y reiniciar*. Godot se cerrará y volverá a abrir.
+
+### Programando el panel de acciones
+
+Seleccionamos el único botón que tenemos (o el primero en su defecto) y le adjuntamos su script. Ahí crearemos una clase llamada `CombatActionButton`, crearemos una variable de tipo `CombatAction` y armamos una función que nos permita cambiar de acción o movimiento y su texto en consecuencia.
+
+El código que nos permite hacer lo anterior se muestra enseguida:
+
+```gdscript
+extends Button
+
+# clase nueva
+class_name CombatActionButton
+
+# variable de tipo CombatAction
+var combat_action : CombatAction
+
+# función que actualiza el texto en el botón
+func set_combat_action(ca : CombatAction):
+	combat_action = ca
+	text = ca.display_name
+```
+
+Procedemos a duplicar tres veces nuestro botón para ya completar los cuatro, con la salvedad de que al último le cambiaremos el nombre para que quede como `PassTurnButton`, su campo de texto lo cambiamos a "Terminar turno" y además, sustraeremos el script que heredó del botón original.
+
+Adjuntamos un script al `CombatActionsUI` y lo guardamos con su respectivo nombre. Dentro del script agregaremos algunas variables: la referencia al `ButtonsContainer`, el arreglo que incluye las diferentes acciones de combate, la descripción de cada movimiento y la ruta del *GameManager*.
+
+```gdscript
+@onready var buttons_container = $ButtonsContainer
+var ca_buttons : Array[CombatActionButton]
+
+@onready var description_text : RichTextLabel = $Description
+@onready var game_manager = $"../.."
+```
+
+Ahora configuraremos la función `_ready()`, en la cual incluiremos un ciclo que iterará buscando todos los botones:
+
+```gdscript
+func _ready():
+	# buscamos los botones
+	for child in buttons_container.get_children():
+		# Si el botón no es una acción de combate
+		if child is not CombatActionButton:
+			# sigue de largo
+			continue
+		# agrega el botón al arreglo
+		ca_buttons.append(child)
+```
+
+Toca programar las señales. Deseamos que la descripción aparezca cuando colocamos el cursor en el botón y desaparezca al abandonarlo. Además, cuando se presione el botón, debe ejecutar la acción correspondiente. Agreguemos entonces dichas funciones, de momento como "dummies" para comprobar su funcionamiento. Escribamos dentro del `for` de `_ready()` lo siguiente:
+
+```gdscript
+# Conectamos la señal de botón presionado al botón
+		child.pressed.connect(_button_pressed.bind(child))
+		# Conectamos la señal de cursor entrando al botón
+		child.mouse_entered.connect(_button_entered.bind(child))
+		# Conectamos la señal de cursor saliendo al botón
+		child.mouse_exited.connect(_button_exited.bind(child))
+```
+
+Ahora, crearemos la funciones que mandamos llamar en cada evento:
+
+```gdscript
+# Función de presionar el botón
+func _button_pressed(button : CombatActionButton):
+	print("Presionao")
+
+# Función de cursor entrando al botón
+func _button_entered(button : CombatActionButton):
+	print("Señalao")
+
+func _button_exited(button : CombatActionButton):
+	print("Saliendo")
+```
+
+Tal como dijimos antes, no tenemos aún la funcionalidad final, pero si probamos la escena, debería indicar en la consola el mensaje pertinente tras realizar cada acción.
+
+Viendo que todo funcione bien, cambiemos el `print()` de las funciones por la auténtica línea:
+
+```gdscript
+# Función de presionar el botón
+func _button_pressed(button : CombatActionButton):
+	# Llamamos al game manager pidiendo el movimiento asociado
+	game_manager.player_cast_combat_action(button.combat_action)
+```
+
+```gdscript
+# Función de cursor entrando al botón
+func _button_entered(button : CombatActionButton):
+	# Actualizamos la descripción del movimiento
+	var ca = button.combat_action
+	description_text.text = "[b]" + ca.display_name + "[/b]n" + ca.description
+```
+
+```gdscript
+func _button_exited(button : CombatActionButton):
+	# Reiniciamos el texto de la descripción
+	description_text.text = ""
+```
+
+Finalmente, conectaremos el botón de ceder el turno. Seleccionamos el botón (`PassTurnButton`) y mediante el panel de *Señales* conectamos su señal `pressed()` al `CombatActionsUI`. En la función que aparece sustituimos el `pass` con
+
+```gdscript
+func _on_pass_turn_button_pressed():
+	# Cede el turno
+    game_manager.next_turn()
+```
+
+Para mostrar correctamente los movimientos al jugador usaremos una función que tome un arreglo que los incluya como argumento y los asigne a los botones. Si tenemos más botones que acciones disponibles, que los deshabilite.
+
+```gdscript
+func set_combat_actions(actions: Array[CombatAction]):
+	# Recorre los botones
+	for i in len(ca_buttons):
+		# Si son más botones que acciones:
+		if i >= len(actions):
+			# deshabilitarlos
+			ca_buttons[i].visible = false
+			# Continuar
+			continue
+
+		# Los botones son visibles
+		ca_buttons[i].visible = true
+		# Se asigna la acción al botón
+		ca_buttons[i].set_combat_action(actions[i])
+```
+
+No corramos el juego. Es seguro que nos dará un error ya que aún no definimos todo.
+
+Debemos irnos al `game_manager.gd` y declarar una nueva variable que haga referencia a la interfaz gráfica para controlar la visibilidad de las acciones.
+
+```gdscript
+# Referencia al panel de movimientos
+@onready var player_ui = $CanvasLayer/CombatActionsUI
+```
+
+Ahora modifiquemos la función `next_turn()` para mostrar los movimientos solo cuando sea turno del jugador:
+
+```gdscript
+func next_turn():
+	# Si el juego ha terminado:
+	if game_over:
+		# Retorna
+		return
+
+	if current_character != null:
+		current_character.end_turn()
+	if current_character == ia_character or current_character == null:
+		current_character = player_character
+	else:
+		current_character = ia_character
+		current_character.begin_turn()
+	if current_character.is_player:
+		player_ui.visible = true
+		player_ui.set_combat_actions(player_character.combat_actions)
+	else:
+		player_ui.visible = false
+		var wait_time = randf_range(0.5, 1.5)
+		await get_tree().create_timer(wait_time).timeout
+		var action_to_cast = ia_decide_combat_action()
+		ia_character.cast_combat_action(action_to_cast, player_character)
+		await get_tree().create_timer(0.5).timeout
+		next_turn()
+```
+
+También queremos ocultar la IU cuando el jugador ya haya realizado algún movimiento. Agregamos esta línea a la función `player_cast_combat_action()` justo antes del `await`
+
+```gdscript
+player_ui.visible = false
+```
+
+Probemos el juego. Todo debería ir bien.
 
 
 
