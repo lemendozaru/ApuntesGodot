@@ -222,7 +222,7 @@ func player_cast_combat_action(action : CombatAction):
 	if player_character != current_character:
 		# Retorna
 		return
-	# Eljugador ejecuta un movimiento contra la IA
+	# El jugador ejecuta un movimiento contra la IA
 	player_character.cast_combat_action(action, ia_character)
 	# Deshabilita la IU y espera medio segundo
 	await get_tree().create_timer(0.5).timeout
