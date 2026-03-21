@@ -646,7 +646,7 @@ func _play_audio (stream : AudioStream):
 	audio.play()
 ```
 
-Ahora sí, probemos el juego. Al menos el personaje del jugador puede curarse y dañar a la IA, a la vez que se reproducen los sonidos adecuados.
+Ahora sí, probemos el juego. Al menos el personaje del jugador puede curarse y dañar a la IA, a la vez que se reproducen los sonidos adecuados. Por cierto, si no podemos ver los cambios tras una curación, modifiquemos la salud actual del caracter en el inspector y probemos de nuevo. La curación no debe superar la vida máxima.
 
 
 
