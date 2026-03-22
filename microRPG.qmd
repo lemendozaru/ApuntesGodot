@@ -747,15 +747,105 @@ Es momento de que la IA elija el movimiento que hará con base en los pesos calc
 
 Probemos el combate. Variemos la vida tanto del jugador como de la IA para verificar que el comportamiento de esta es coherente con las diversas situaciones que se puedan presentar en combate.
 
-## Fin del juego
+## Pantalla de fin del juego
 
 Configuremos el fin del juego basados en si el jugador gana o pierde el combate. Esto implica crear una pantalla que aparezca cuando la pelea termine.
 
-### Creando la pantalla final
+### Creando la pantalla
 
 En la escena de batalla, seleccionamos el nodo `CanvasLayer` y le agragamos un `Panel` que llamaremos `EndScreen`. Le aplicamos un anclaje "Completo". Enseguida nos dirigimos a su *Theme Overrides -> Styles* y creamos un nuevo *StyleBoxFlat*, al cual le daremos un color a nuestro gusto. En este caso, le pusimos un color verdoso.
 
-Le añadiremos como hijo un `Label` cuyo nombre será `HeaderText` y cuyo anclaje será "Centro".
+Le añadiremos como hijo un `Label` cuyo nombre será `HeaderText` y cuyo anclaje será "Centro". Escribimos algún mensaje adecuado en el campo de texto (como ejemplo, escribimos "¡Has ganado el combate!"). Luego debemos crear un nuevo recurso `LabelSettings` y lo desplegamos. Cambiamos el tamaño de fuente y alineamos el texto tanto vertical como horizontalmente.
+
+Ahora incluiremos un botón a `EndScreen`. Este se llamará `PlayAgainButton` y lo anclamos en el centro. Posteriormente lo bajamos un poco para que no se estorbe con el texto ya existente y cambiamos el tamaño de fuente a `32`, por ejemplo (esto se hace en *Theme Overrides*). Le ponemos un texto alusivo (en este caso le pusimos "Juega de nuevo").
+
+### Programando la pantalla
+
+Debemos cumplir dos objetivos con este código: presentar la pantalla y recargar la escena cuando el jugador quiera jugar de nuevo.
+
+Unimos un script al `EndScreen` y lo llamamos tal como nos sugiere Godot (`end_screen.gd`). En este declaramos una variable que hace referencia a la etiqueta y creamos la función que estará actualizando el texto en la misma:
+
+```gdscript
+# Referencia a la etiqueta
+@onready var header_text : Label = $HeaderText
+
+# Actualiza el texto en la etiqueta
+func set_header_text(text_to_display : String):
+	header_text.text = text_to_display
+```
+
+Luego conectamos el `PlayAgainButton` con su respectivo `EndScreen`. Eso lo hacemos seleccionando dicho botón y en *Señales* damos doble clic en `pressed()`. En el cuadro que aparezca debemos asegurarnos de elegir el `EndScreen` y no `Main`. Dentro de la función creada agregamos la línea
+
+```gdscript
+	# Recarga la escena actual
+	get_tree().reload_current_scene()
+```
+
+Esto recargará la escena actual, que viene siendo `battle.tscn`.
+
+Ahora nos dirigimos al `game_manager.gd` para modificarlo y permitir que se detecte quién ha ganado para mostrar la pantalla pertinente.
+
+Primero declaramos una variable:
+
+```gdscript
+# Referencia al panel
+@onready var end_screen = $CanvasLayer/EndScreen
+```
+
+Luego creamos un par de funciones justo antes de `next_turn()`:
+
+```gdscript
+# Revisa la salud del jugador
+func _on_player_take_damage (health : int):
+	# Si la vida llega a 0:
+	if health <= 0:
+		# termina el juego y vence la IA
+		end_game(ia_character)
+
+# Revisa la salud de la IA
+func _on_ia_take_damage (health : int):
+	# Si la vida llega a 0:
+	if health <= 0:
+		# termina el juego y gana el jugador
+		end_game(player_character)
+```
+
+El siguiente paso es conectar esas funciones a las señales `OnTakeDamage` del jugador y de la IA, además de asegurarnos de ocultar la pantalla final por defecto. Nos dirigimos a la función `_ready()` y la dejamos tal como se muestra en el siguiente bloque:
+
+```gdscript
+func _ready():
+	# Conexión de señal de daño al jugador
+	player_character.OnTakeDamage.connect(_on_player_take_damage)
+	# Conexión de señal de daño a la IA
+	ia_character.OnTakeDamage.connect(_on_ia_take_damage)
+
+	# Ocultamos la pantalla final por defecto
+	end_screen.visible = false
+
+	# Siguiente turno
+	next_turn()
+```
+
+Por último creamos la función `end_game()`, justo antes de `next_turn()`.
+
+```gdscript
+# Define quién gana y muestra la pantalla final
+func end_game (winner : Character):
+	# Vuelve verdadera la variable
+	game_over = true
+	# Vuelve visible la pantalla final
+	end_screen.visible = true
+	# Si el jugador gana:
+	if winner == player_character:
+		# la etiqueta muestra el texto adecuado.
+		end_screen.set_header_text("¡Ganaste!")
+	# Si no:
+	else:
+		# la etiqueta muestra el mensaje contrario.
+		end_screen.set_header_text("¡Has perdido!")
+```
+
+Hemos terminado la parte "técnica" de nuestro mini juego de combate por turnos.
 
 
 
