@@ -648,6 +648,121 @@ func _play_audio (stream : AudioStream):
 
 Ahora sí, probemos el juego. Al menos el personaje del jugador puede curarse y dañar a la IA, a la vez que se reproducen los sonidos adecuados. Por cierto, si no podemos ver los cambios tras una curación, modifiquemos la salud actual del caracter en el inspector y probemos de nuevo. La curación no debe superar la vida máxima.
 
+## La IA del enemigo
+
+Comenzaremos configurando las funciones que permitan a la IA el tomar decisiones que le permitan derrotar al jugador. Contrario a este último, la IA necesita un proceso lógico para decidir sus movimientos. Implementaremos un sistema de aleatoriedad ponderada para llevar a cabo dicho proceso.
+
+### Entendiendo la aleatoriedad ponderada
+
+Esta nos permitirá influir en la preferencia de la IA por ejecutar ciertas acciones de combate. Cada acción tiene una ponderación base que determinará su oportunidad de ser elegida y realizada. Mientras mayor sea este peso base, más preferencia tendrá el movimiento por ser realizado. Sin embargo, modificaremos esos pesos con base en la salud tanto de la IA como del jugador para tomar decisiones más estratégicas.
+
+### Configurando la función de decisiones
+
+Primero vamos a delinear los pasos que debemos realizar para implementar esta función. Debemos establecer las variables necesarias primero, luego calcularemos los porcentajes de vida del jugador y la IA, para utilizarlos y modificar las ponderaciones en consecuencia para así elegir el movimiento aleatorio basado en esas ponderaciones finales.
+
+#### Variables necesarias
+
+Vayamos al `game_manager.gd` y modifiquemos la función `ia_decide_combat_action` para asegurarnos que sea turno de la IA:
+
+```gdscript
+func ia_decide_combat_action() -> CombatAction:
+	# Si la IA no es el jugador actual:
+	if ia_character != current_character:
+		# no regresa nada
+		return null
+
+	return null
+```
+
+Luego, creamos las variables justo antes del último `return null`:
+
+```gdscript
+# Alias para las variables
+	var ia = ia_character
+	var player = player_character
+	var actions = ia.combat_actions
+
+	# Variables para rastrear las ponderaciones
+	var weights: Array[int] = []
+	var total_weight = 0
+```
+
+#### Calculando porcentajes de vida
+
+Agregamos justo debajo de la última variable que declaramos en el bloque anterior las siguientes líneas que nos permiten calcular ambos porcentajes:
+
+```gdscript
+	# Calculamos el porcentaje de salud de la IA
+	var ia_health_perc = float(ia.cur_health) / float(ia.max_health)
+	# Calculamos el porcentaje del jugador
+	var player_health_perc = float(player.cur_health) / float(player.max_health)
+```
+
+#### Determinando las ponderaciones
+
+Iteraremos a través de cada movimiento en el arreglo de acciones de combate de la IA y modificaremos las ponderaciones con base en ciertas condiciones. Luego sumaremos la ponderación final al total de pesos. Escribimos enseguida, en el mismo bloque de función:
+
+```gdscript
+	# Iteramos a través de las acciones
+	for action in actions:
+		# Variable que toma el peso base de la acción
+		var weight : int = action.base_weight
+		# Si la salud actual del jugador es menor o igual que el daño
+		# del movimiento:
+		if player.cur_health <= action.melee_damage:
+			# multiplica el peso base por 3
+			weight *= 3
+
+		# Si es movimiento de curación:
+		if action.heal_amount > 0:
+			# aumenta su peso mientras menos vida tenga la IA
+			weight *= 1 + (1 - ia_health_perc)
+
+		# Añadimos el peso calculado al arreglo de pesos
+		weights.append(weight)
+		# y lo sumamos a la variable de peso total
+		total_weight += weight
+```
+
+#### Eligiendo el movimiento a realizar
+
+Es momento de que la IA elija el movimiento que hará con base en los pesos calculados. Para ello usaremos pesos acumulados que funcionarán como uno de los valores que considerará la IA para aleatoriamente decidir qué realizar. Saldremos del `for` pero seguiremos escribiendo en la misma función. Escribamos pues lo siguiente:
+
+```gdscript
+	# Variable para el peso acumulado
+	var cumulative_weight = 0
+	# Variable aleatoria entre 0 y el peso total
+	var rand_weight = randi_range(0,total_weight)
+
+	# Para cada peso en el arreglo de pesos:
+	for i in len(actions):
+		# agregamos el peso actual al acumulado
+		cumulative_weight += weights[i]
+
+		# Si el peso random es menor al acumulado:
+		if rand_weight < cumulative_weight:
+			# devuelve la actual acción del ciclo
+			return actions[i]
+```
+
+Probemos el combate. Variemos la vida tanto del jugador como de la IA para verificar que el comportamiento de esta es coherente con las diversas situaciones que se puedan presentar en combate.
+
+## Fin del juego
+
+Configuremos el fin del juego basados en si el jugador gana o pierde el combate. Esto implica crear una pantalla que aparezca cuando la pelea termine.
+
+### Creando la pantalla final
+
+En la escena de batalla, seleccionamos el nodo `CanvasLayer` y le agragamos un `Panel` que llamaremos `EndScreen`. Le aplicamos un anclaje "Completo". Enseguida nos dirigimos a su *Theme Overrides -> Styles* y creamos un nuevo *StyleBoxFlat*, al cual le daremos un color a nuestro gusto. En este caso, le pusimos un color verdoso.
+
+Le añadiremos como hijo un `Label` cuyo nombre será `HeaderText` y cuyo anclaje será "Centro".
+
+
+
+
+
+
+
 
 
 
