@@ -7,18 +7,12 @@ book:
   chapters:
     - index.qmd
     - intro.qmd
-    - part: "Introducción"
-      chapters:
-        - conceptosclave.qmd
-        - primer2D.qmd
-        - primer3D.qmd
-        - primerMovil.qmd
-    - part: "Plataformas"
-      chapters:
-        - plataformas2D.qmd
-    - part: "RPGs"
-      chapters:
-        - microRPG.qmd
+    - conceptosclave.qmd
+    - primer2D.qmd
+    - primer3D.qmd
+    - primerMovil.qmd
+    - plataformas2D.qmd
+    - microRPG.qmd
     - summary.qmd
     - references.qmd
 
