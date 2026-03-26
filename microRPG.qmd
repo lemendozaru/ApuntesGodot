@@ -847,6 +847,231 @@ func end_game (winner : Character):
 
 Hemos terminado la parte "técnica" de nuestro mini juego de combate por turnos.
 
+## Retoques visuales
+
+### Diferenciando los caracteres
+
+En este momento ambos caracteres son iguales y con excepción de la ubicación, nada los diferencia. Resolvamos eso. Abrimos `character.gd` y creamos una variable que controlará la dirección a donde volteará el personaje, dependiendo de si es el jugador o la IA.
+
+```gdscript
+# Booleana que hace girar a la izquierda
+@export var facing_left : bool = false
+```
+
+Luego necesitamos referenciar el sprite y modificar sus propiedades con base en la variable recién creada.
+
+```gdscript
+# Referencia al sprite del caracter
+@onready var sprite : Sprite2D = $Sprite2D
+```
+
+Nos dirigimos a la función `_ready()` y agregamos:
+
+```gdscript
+func _ready() -> void:
+	# Tomamos el valor de la variable lógica correspondiente
+	sprite.flip_h = facing_left
+```
+
+Entonces seleccionamos el nodo `IACharacter` de la escena `battle.tscn` y activamos su propiedad *Facing Left*. Guardamos y si ejecutamos el juego, este ya debería mostrar los caracteres mirando en direcciones opuestas.
+
+### Cambiando al caracter
+
+Le daremos a la IA otra apariencia. Crearemos una variable más para permitir la carga de otra textura. En el mismo `character.gd` agregamos:
+
+```gdscript
+# Variable para cargar diferentes texturas
+@export var display_texture : Texture2D
+```
+
+Y en `_ready()` incluimos al final la línea:
+
+```gdscript
+	sprite.texture = display_texture
+```
+
+Ahora agregamos arrastrando desde el sistema de archivos la textura correspondiente hacia la nueva propiedad *Display Texture* del inspector, seleccionando tanto `PlayerCharacter` como `IACharacter` en la escena `battle`.
+
+### Efectos visuales de daño
+
+Daremos un efecto visual al recibir daño. Así que nos vamos a la escena `character` y le agregamos un script al nodo `Sprite2D` y le llamamos `character_visual.gd`.
+
+En este nuevo script crearemos una función llamada `_damage_visual()` que tomará el parámetro entero llamado `health`.
+
+```gdscript
+func _damage_visual(health: int):
+	# Aplicamos un filtro rojo
+	modulate = Color.RED
+	# Hacemos que dure 0.05 s
+	await get_tree().create_timer(0.05).timeout
+	# quitamos el filtro rojo
+	modulate = Color.WHITE
+```
+
+Dentro de `_ready()` ponemos:
+
+```gdscript
+	# Obtenemos el nodo padre
+	var character = get_parent()
+	# Conectamos a la señal de recibir daño
+	character.OnTakeDamage.connect(_damage_visual)
+```
+
+Y ahora daremos el efecto de vibración al sprite. Primero agregamos unas cuantas funciones:
+
+```gdscript
+# Variable que aplica el desfase
+@onready var base_offset: Vector2 = offset
+# Intensidad de la sacudida
+var shake_intensity: float = 0.0
+var shake_damping: float = 10.0
+```
+
+Luego creamos la función que generará la sacudida aleatoria:
+
+```gdscript
+# Desfase aleatorio para la sacudida del sprite
+func _random_offset() -> Vector2:
+	var x = randf_range(-shake_intensity, shake_intensity)
+	var y = randf_range(-shake_intensity, shake_intensity)
+	return Vector2(x, y)
+```
+
+Y agregamos lo siguiente a la función `_process()`:
+
+```gdscript
+func _process(delta: float) -> void:
+	# Si la intensidad es mayor a cero:
+	if shake_intensity > 0:
+		# Interpola la vibración gradualmente
+		shake_intensity = lerpf(shake_intensity, 0, shake_damping * delta)
+		# Desfase aleatorio
+		offset = base_offset + _random_offset()
+```
+
+Por último, en la función `_damage_visual()` agregamos justo después de modular a rojo esta línea de código:
+
+```gdscript
+	# Intensidad de sacudida
+	shake_intensity = 10.0
+```
+
+### Darle vida a los personajes
+
+Toca darle mayor vida a nuestro combate. Hagamos que los personajes "respiren" en el campo de batalla. En el `character_visual.gd` agregamos más variables:
+
+```gdscript
+# Intensidad del movimiento
+var bob_amount : float = 0.02
+# Velocidad del movimiento
+var bob_speed : float = 15.0
+```
+
+Luego, dentro de `_process()`, antes del `if`, declaramos lo siguiente:
+
+```gdscript
+	# Tomamos el tiempo desde el sistema
+	var t = Time.get_unix_time_from_system()
+	# Usamos la función seno
+	var y_scale = 1 + (sin(t * bob_speed) * bob_amount)
+	# Escalamos en y basados en el seno
+	scale.y = y_scale
+```
+
+### Indicar cuál personaje está activo
+
+Ahora crearemos un efecto visual que haga más fácil identificar de quién es el turno. El personaje que se encuentre activo se mostrará de mayor tamaño. En términos cuantitativos, cambiaremos la escala del sprite correspondiente a `1.1` cuando esté activo y a `0.9` en caso contrario.
+
+Nos dirigimos al script `character.gd` y ubicamos las funciones `begin_turn()` y `end_turn()`. Dentro de ellas ya deberíamos tener asentado este cambio en una variable existente que se llama `target_scale`.
+
+Pues bien, editaremos `_process()`:
+
+```gdscript
+func _process(delta: float):
+	# Escala en X
+	scale.x = lerp(scale.x, target_scale, delta * 10)
+	# Escala en Y
+	scale.y = lerp(scale.y, target_scale, delta * 10)
+```
+
+## El sonido
+
+Agreguemos el sonido de fondo al combate. Abriremos la escena `battle.tscn` y seleccionamos el nodo `Main`. Le añadiremos un nodo `AudioStreamPlayer` que renombraremos como `Music`. En su propiedad *Stream* cargaremos el archivo `battle_music.wav`. Cambiamos el volumen a `-15` dB en *Volume dB* y activamos su propiedad *Autoplay* (es lo que nos permite reproducir este audio al iniciar el juego).
+
+Ahora bien, el audio no se escuchará de manera ininterrumpida. Para resolverlo, abrimos el panel *Importar* que está al lado del árbol de escenas. Ahí buscamos la propiedad *Modo Loop* y la cambiamos a `Forward`. Debemos dar clic al botón *Reimportar* para guardar el cambio.
+
+## Moviendo el fondo
+
+Seleccionamos el nodo `Background` de la escena `battle` y en su propiedad *Size X* simplemente multiplicamos el valor actual por 3, dejándolo en `4512`. Luego lo movemos lo más posible hacia la izquierda pero aún cubriendo nuestra escena.
+
+Le agregamos un script que llamaremos `Background.gd` y declaramos las variables:
+
+```gdscript
+# velocidad del movimiento
+@export var speed : float = 200
+# Extensión
+@export var extents : float = 1024
+# Posición inicial
+@onready var start_pos : Vector2 = position
+# Cambio de color
+@export var color_lerp : Gradient
+```
+
+Luego, en `_process()` ponemos lo siguiente
+
+```gdscript
+func _process(delta):
+	position.x += speed * delta
+```
+
+Para crear la ilusión de un escenario infinito, necesitamos reiniciar el fondo a su posición original una vez que alcance cierto punto, el cual será su extensión total. Agregamos al final de `_process()` lo siguiente:
+
+```gdscript
+	# Si la posición actual en X menos la original supera la extensión:
+	if position.x - start_pos.x >= extents:
+		# reiniciamos la posición
+		position = start_pos
+```
+
+Como toque final, cambiaremos el color del fondo para dar mayor dinamismo. Con `Background` aún seleccionado, vamos al inspector y en la propiedad *Color Lerp* creamos un nuevo gradiente. Damos clic en él para desplegarlo y cambiamos el color de ambos extremos (izquierdo y derecho), además del color del centro de la barra. Lo dejamos a nuestro gusto y criterio. En nuestro caso, dejamos un verde apagado en la izquierda, un naranja en la derecha y un verde brillante en medio.
+
+Agregamos al final de `_process()` pero fuera del `if` las siguientes líneas:
+
+```gdscript
+	# Obtenemos el tiempo del sistema
+	var time = sin(Time.get_unix_time_from_system())
+	time = (time + 1) / 2
+	# Aplicamos un filtro de color basados en el tiempo
+	modulate = color_lerp.sample(time)
+```
+
+## Menú de inicio
+
+Terminaremos nuestro juego con una escena principal en la que elegiremos si jugar o salir del título.
+
+Creamos una escena con un nodo raíz del tipo `Control` que llamaremos `Menu`. Le añadiremos un `TextureRect` que llamaremos `Background` y le cargaremos en mismo fondo que a nuestra escena de batalla. Le aplicamos a ambos nodos un anclaje "Completo" y cambiamos la propiedad *Expand Mode* de `Background` a `Fit Height`.
+
+Seleccionamos `Menu` y añadimos un `Label` que renombramos como `Title`. Cambiamos su texto a "Micro-RPG" y mediante un nuevo recurso *Label Settings* modificamos la fuente a `64` px de tamaño, un color a nuestro gusto y una línea exterior blanca de `25` px. Aplicamos un anclaje de "Centro" y alineamos el texto de igual manera en sentido horizontal y vertical.
+
+Seleccionamos `Menu` de nuevo y agregamos un `Button`. Le ponemos de nombre `PlayButton` y en su texto escribimos "JUGAR". En *Theme Overrides* cambiamos el tamaño de fuente a `40` px. Lo redimensionamos a nuestro criterio y lo anclamos al centro. Luego lo movemos hacia abajo.
+
+Duplicamos el botón y le renombramos `QuitButton`. Enseguida cambiamos su texto a "SALIR".
+
+Terminemos por programar el comportamiento de los botones. Adjuntamos un script a `Menu` y lo guardamos como Godot nos sugiere. Enseguida seleccionamos cada botón para conectar su respectiva señal `pressed()` al mismo script de `Menu`. Para cada función generada agregamos lo siguiente:
+
+```gdscript
+func _on_play_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/battle.tscn")
+
+func _on_quit_button_pressed() -> void:
+	get_tree().quit()
+```
+
+Establecemos `menu.tscn` como la escena principal y guardamos. Hemos terminado nuestro micro-RPG.
+
+
+
+
 
 
 

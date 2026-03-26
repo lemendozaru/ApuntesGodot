@@ -666,7 +666,7 @@ if global_position.y > 200:
 
 Seleccionemos el sprite que contiene el fondo en `level_1.tscn` y modifiquemos su *Scale* a `0.5` y su *Position* a `0, 0`. Añadamos a `Main` un `Node2D` y llamémosle `Backgrounds`, arrastremos ahí el nodo `Background`. Debemos asegurarnos de llevar `Backgrounds` justo debajo de `Main` en el árbol de nodos. Dupliquemos el `Background` unas tres veces y movamos horizontalmente las copias de manera que cubran todo el nivel. Podemos usar un *Position X* de `-512` para la primera copia, `512` para la segunda, y `512+512` para la tercera.
 
-Enseguida adjuntamos un script a `Background` y le dejamos el nombre por defecto. Dentro de este dejamos el código como se muestra:
+Enseguida adjuntamos un script a `Backgrounds` y le dejamos el nombre por defecto. Dentro de este dejamos el código como se muestra:
 
 ```gdscript
 extends Node2D
