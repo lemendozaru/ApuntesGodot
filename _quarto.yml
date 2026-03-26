@@ -26,6 +26,7 @@ format:
     toc-title: Contenido
   pdf:
     documentclass: scrreprt
+    toc-title: Contenido
   epub:
     toc: true
     toc-title: Contenido
