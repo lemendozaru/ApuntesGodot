@@ -1,5 +1,5 @@
-# Prefacio {.unnumbered}
+# Inicio {.unnumbered}
 
-Este es un libro sobre Godot y el desarrollo de videojuegos.
+Este es el segundo curso de desarrollo de videojuegos en el motor Godot. Se asume que se conoce un poco el programa, aunque no se espera que se domine. Aún se considera este curso como uno básico, de entrada.
 
-Para aprender más sobre Godot, [godotengine.org](https://godotengine.org/es/).
+A lo largo del mismo estaremos abrodando conceptos ya vistos anteriormente, como animaciones, cajas de colisión, físicas y *sprites*. Sin embargo, debemos abordar los mapas de baldosas o *tilemaps* para crear nuestros escenarios y abundaremos más en el uso de las señales. En fin, sin más tiempo que ocupar en introducciones, vamos por ese jueguito.

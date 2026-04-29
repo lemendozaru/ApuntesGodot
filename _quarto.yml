@@ -2,21 +2,20 @@ project:
   type: book
 
 book:
-  title: "Desarrollo de Videojuegos"
+  title: "Plataformas en 2D"
   author: "Luis E. Mendoza"
   chapters:
     - index.qmd
     - intro.qmd
-    - conceptosclave.qmd
-    - primer2D.qmd
-    - primer3D.qmd
-    - primerMovil.qmd
-    - plataformas2D.qmd
-    - microRPG.qmd
-    - summary.qmd
-    - references.qmd
-
-bibliography: references.bib
+    - gameDesign.qmd
+    - config.qmd
+    - jugador.qmd
+    - enemigo.qmd
+    - danio.qmd
+    - coleccionables.qmd
+    - puntaje.qmd
+    - iu.qmd
+    - retoques.qmd
 
 format:
   html:
